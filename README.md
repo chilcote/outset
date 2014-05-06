@@ -1,11 +1,11 @@
 outset
 ======
 
-This script automatically processes packages and scripts at first boot and/or each (subsequent) user login.
+This script automatically processes packages and scripts at first boot and/or each (subsequent) user login. This script is meant to meet my particular requirements, and is based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), and [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot).
 
 Requirements
 ------------
-+ [The Luggage](https://github.com/unixorn/luggage)   
++ [The Luggage](https://github.com/unixorn/luggage)  
 + python 2.7  
 
 Usage
