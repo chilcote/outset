@@ -1,7 +1,7 @@
 outset
 ======
 
-This script automatically process packages and scripts at first boot and/or each user login.
+This script automatically processes packages and scripts at first boot and/or each (subsequent) user login.
 
 Requirements
 ------------
