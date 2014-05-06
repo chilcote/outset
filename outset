@@ -162,11 +162,11 @@ def process_items(path, once=False):
         pathname = os.path.join(path, f)
         mode = os.stat(pathname).st_mode
         uid = os.stat(pathname).st_uid
-        if uid == 0 and not (mode & S_IWOTH):
+        if uid == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
             if pathname.lower().endswith(('py', 'rb', 'sh')):
                 try:
                     proc = subprocess.Popen(pathname, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+                                            stderr=subprocess.PIPE)
                     logging.info('Processing %s' % pathname)
                     (out, err) = proc.communicate()
                     if err:
