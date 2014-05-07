@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.github.outset.every</string>
+	<string>com.github.outset.login</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/outset/outset</string>
-		<string>--every</string>
+		<string>--login</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>

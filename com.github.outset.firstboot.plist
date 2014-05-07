@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.github.outset.once</string>
+	<string>com.github.outset.firstboot</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/outset/outset</string>
-		<string>--once</string>
+		<string>--firstboot</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
