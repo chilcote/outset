@@ -40,9 +40,10 @@ launch_daemon = '/Library/LaunchDaemons/com.github.outset.once.plist'
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
 else:
-    if not os.path.exists(os.path.join(os.getenv('HOME'), 'Library/Logs')):
-        os.makedirs(os.path.join(os.getenv('HOME'), 'Library/Logs'))
-    log_file = os.path.join(os.getenv('HOME'), 'Library/Logs/outset.log')
+    if not os.path.exists(os.path.expanduser('~/Library/Logs')):
+        os.makedirs(os.path.expanduser('~/Library/Logs'))
+    log_file = os.path.expanduser('~/Library/Logs/outset.log')
+    run_once_plist = os.path.expanduser('~/Library/Preferences/com.github.outset.once.plist')
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
@@ -174,13 +175,24 @@ def install_package(pkg):
         time.sleep(5)
         detach_dmg(dmg_mount)
 
+def check_perms(pathname):
+    mode = os.stat(pathname).st_mode
+    owner = os.stat(pathname).st_uid
+    if owner == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
+        return True
+    return False
+
 def process_items(path, once=False):
     '''Processes scripts/packages to run once at first boot'''
+    if not os.path.exists(path):
+        logging.error('%s does not exists. Exiting' % path)
+        sys.exit(1)
     for f in os.listdir(path):
         pathname = os.path.join(path, f)
-        mode = os.stat(pathname).st_mode
-        uid = os.stat(pathname).st_uid
-        if uid == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
+        # mode = os.stat(pathname).st_mode
+        # uid = os.stat(pathname).st_uid
+        # if uid == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
+        if check_perms(pathname):
             if pathname.lower().endswith(('py', 'rb', 'sh')):
                 try:
                     proc = subprocess.Popen(pathname, stdout=subprocess.PIPE,
