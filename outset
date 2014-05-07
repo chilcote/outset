@@ -235,7 +235,7 @@ def main():
         wait_for_network()
         sys_report()
         process_items(firstboot_scripts_dir, delete_items=True)
-        process_items(everyboot_scripts_dir, delete_items=False)
+        process_items(everyboot_scripts_dir)
         enable_loginwindow()
         process_items(firstboot_packages_dir, delete_items=True)
         cleanup(launch_daemon)

@@ -2,7 +2,8 @@ USE_PKGBUILD=1
 include /usr/local/share/luggage/luggage.make
 TITLE=outset_script
 REVERSE_DOMAIN=com.github.outset
-PAYLOAD=pack-Library-LaunchDaemons-com.github.outset.boot.plist \
+PAYLOAD= \
+		pack-Library-LaunchDaemons-com.github.outset.boot.plist \
 		pack-Library-LaunchAgents-com.github.outset.login.plist \
 		pack-usr-local-outset-outset \
 
