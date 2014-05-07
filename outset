@@ -38,7 +38,8 @@ login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
 firstboot_scripts_dir = os.path.join(outset_dir, 'firstboot-scripts')
 firstboot_packages_dir = os.path.join(outset_dir, 'firstboot-packages')
-launch_daemon = '/Library/LaunchDaemons/com.github.outset.firstboot.plist'
+everyboot_scripts_dir = os.path.join(outset_dir, 'everyboot-scripts')
+launch_daemon = '/Library/LaunchDaemons/com.github.outset.boot.plist'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -195,7 +196,7 @@ def run_script(pathname):
     except OSError:
         logging.error('Failure processing %s: %s' % (pathname, OSError))
 
-def process_items(path, firstboot=False, once=False):
+def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run once at first boot'''
     if not os.path.exists(path):
         logging.error('%s does not exists. Exiting' % path)
@@ -221,7 +222,7 @@ def process_items(path, firstboot=False, once=False):
                 logging.error('No valid script or package found')
         else:
             logging.error('Bad permissions: %s' % pathname)
-        if firstboot:
+        if delete_items:
             cleanup(pathname)
 
 def main():
@@ -229,20 +230,21 @@ def main():
     if not len(sys.argv) == 2:
         logging.error('No or too many argument(s) given')
         sys.exit(0)
-    if sys.argv[1] == '--firstboot':
+    if sys.argv[1] == '--boot':
         disable_loginwindow()
         wait_for_network()
         sys_report()
-        process_items(firstboot_scripts_dir, firstboot=True)
+        process_items(firstboot_scripts_dir, delete_items=True)
+        process_items(everyboot_scripts_dir, delete_items=False)
         enable_loginwindow()
-        process_items(firstboot_packages_dir, firstboot=True)
+        process_items(firstboot_packages_dir, delete_items=True)
         cleanup(launch_daemon)
-        logging.info('firstboot processing complete')
+        logging.info('boot processing complete')
     elif sys.argv[1] == '--login':
         process_items(login_every_dir)
         process_items(login_once_dir, once=True)
     else:
-        logging.error('Argument did not match "--firstboot" or "--login"')
+        logging.error('Argument did not match "--boot" or "--login"')
         sys.exit(0)
 
 if __name__ == '__main__':
