@@ -1,7 +1,7 @@
 outset
 ======
 
-This script automatically processes packages and scripts at first boot and/or each (subsequent) user login. This script is meant to meet my particular requirements, and is based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), and [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot).
+This script automatically processes packages and scripts at first boot and/or each (subsequent) user login. 
 
 Requirements
 ------------
@@ -67,6 +67,9 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 	pack-usr-local-outset-packages-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/packages
 
+Credits
+-------
+This script was an excuse for me to learn more about python, and is based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://code.google.com/p/munki/source/browse/code/client/managedsoftwareupdate#87).
 
 License
 -------

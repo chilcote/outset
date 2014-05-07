@@ -70,6 +70,24 @@ def wait_for_network():
             logging.info('Waiting for network')
             time.sleep(10)
 
+def disable_loginwindow():
+    '''Disables the loginwindow process'''
+    logging.info('Disabling loginwindow process')
+    cmd = ['/bin/launchctl', 'unload',
+                '/System/Library/LaunchDaemons/com.apple.loginwindow.plist']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    (out, err) = proc.communicate()
+
+def enable_loginwindow():
+    '''Enables the loginwindow process'''
+    logging.info('Enabling loginwindow process')
+    cmd = ['/bin/launchctl', 'load',
+                '/System/Library/LaunchDaemons/com.apple.loginwindow.plist']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    (out, err) = proc.communicate()
+
 def get_hardwaremodel():
     '''Returns the hardware model of the Mac'''
     cmd = ['/usr/sbin/sysctl', '-n', 'hw.model']
@@ -188,9 +206,11 @@ def main():
         logging.error('No or too many argument(s) given')
         sys.exit(0)
     if sys.argv[1] == '--once':
+        disable_loginwindow()
         wait_for_network()
         sys_report()
         process_items(once_dir, once=True)
+        enable_loginwindow()
         process_items(pkg_dir, once=True)
         cleanup(launch_daemon)
     elif sys.argv[1] == '--every':
