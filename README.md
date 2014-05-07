@@ -12,22 +12,24 @@ Requirements
 Usage
 -----
 
-The script is meant to be triggered by launchd so there is no interactive mode as such. The `--firstboot` argument is triggered by a LaunchDaemon and therefore will be run by root. The `--login` argument is triggered by a LaunchAgent, so it is running in the user context.  
+The script is meant to be triggered by launchd so there is no interactive mode as such. The `--boot` argument is triggered by a LaunchDaemon and therefore will be run by root. The `--login` argument is triggered by a LaunchAgent, so it is running in the user context.  
 
 For testing purposes, one could manually run the command:  
 
-	sudo ./outset --firstboot
+	sudo ./outset --boot
 	./outset --login
 
 `outset` is controlled by two launchd plists:
 
-	/Library/LaunchDaemons/com.github.outset.firstboot.plist
+	/Library/LaunchDaemons/com.github.outset.boot.plist
 	/Library/LaunchAgents/com.github.outset.login.plist
 
-The first plist runs any scripts and packages you define to be processed at firstboot by placing them in the following directories, and will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The first plist runs any scripts and packages you define to be processed at first boot or every boot by placing them in the following directories. Every boot scripts will run at each boot. First boot scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
 
 	/usr/local/outset/firstboot-packages
 	/usr/local/outset/firstboot-scripts
+	/usr/local/outset/everyboot-scripts
+  
 
 The second plist runs any scripts you define to be processed at login by placing them in the following directory, and will continue to run at every login (scripts in the `login-once` directory will only be run once per user):
 
@@ -47,7 +49,7 @@ Use [The Luggage](https://github.com/unixorn/luggage) to create a package of the
 
 	sudo make pkg
 
-You can also use The Luggage to package up some scripts to be run by `outset`. Here is an example Makefile that would package up some hypothetical scripts and packages to be installed at firstboot and each login:
+You can also use The Luggage to package up some scripts to be run by `outset`. Here is an example Makefile that would package up some hypothetical scripts and packages to be installed at first boot, every boot, each login, and first login:
 
 	USE_PKGBUILD=1
 	include /usr/local/share/luggage/luggage.make
@@ -57,11 +59,12 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 			pack-usr-local-outset-firstboot-packages-sample_pkg.dmg \
 			pack-usr-local-outset-firstboot-packages-sample_pkg.pkg \
 			pack-usr-local-outset-firstboot-scripts-sample_script_firstboot.py \
+			pack-usr-local-outset-everyboot-scripts-sample_script_every.py \
 			pack-usr-local-outset-login-every-sample_script_every.py \
 			pack-usr-local-outset-login-once-sample_script_once.py
 
 	l_usr_local_outset: l_usr_local
-		@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,login-every,login-once}
+		@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,everyboot-scripts,login-every,login-once}
 		@sudo chown -R root:wheel ${WORK_D}/usr/local/outset
 		@sudo chmod -R 755 ${WORK_D}/usr/local/outset
 
@@ -70,6 +73,9 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 
 	pack-usr-local-outset-firstboot-scripts-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/firstboot-scripts
+
+	pack-usr-local-outset-everyboot-scripts-%: % l_usr_local_outset
+		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/everyboot-scripts
 
 	pack-usr-local-outset-login-every-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-every
