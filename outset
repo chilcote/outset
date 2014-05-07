@@ -231,18 +231,22 @@ def main():
         logging.error('No or too many argument(s) given')
         sys.exit(0)
     if sys.argv[1] == '--boot':
-        disable_loginwindow()
-        wait_for_network()
-        sys_report()
-        process_items(firstboot_scripts_dir, delete_items=True)
-        process_items(everyboot_scripts_dir)
-        enable_loginwindow()
-        process_items(firstboot_packages_dir, delete_items=True)
-        cleanup(launch_daemon)
+        if os.listdir(firstboot_scripts_dir):
+            disable_loginwindow()
+            sys_report()
+            wait_for_network()
+            process_items(firstboot_scripts_dir, delete_items=True)
+            enable_loginwindow()
+        if os.listdir(everyboot_scripts_dir):
+            process_items(everyboot_scripts_dir)
+        if os.listdir(firstboot_packages_dir):
+            process_items(firstboot_packages_dir, delete_items=True)
         logging.info('boot processing complete')
     elif sys.argv[1] == '--login':
-        process_items(login_every_dir)
-        process_items(login_once_dir, once=True)
+        if os.listdir(login_every_dir):
+            process_items(login_every_dir)
+        if os.listdir(login_once_dir):
+            process_items(login_once_dir, once=True)
     else:
         logging.error('Argument did not match "--boot" or "--login"')
         sys.exit(0)
