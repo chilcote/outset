@@ -69,7 +69,7 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 
 Credits
 -------
-This script was an excuse for me to learn more about python, and is based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://code.google.com/p/munki/source/browse/code/client/managedsoftwareupdate#87).
+This script was an excuse for me to learn more about python, and is based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://code.google.com/p/munki/source/browse/code/client/managedsoftwareupdate#87).
 
 License
 -------
