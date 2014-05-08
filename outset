@@ -40,6 +40,7 @@ firstboot_scripts_dir = os.path.join(outset_dir, 'firstboot-scripts')
 firstboot_packages_dir = os.path.join(outset_dir, 'firstboot-packages')
 everyboot_scripts_dir = os.path.join(outset_dir, 'everyboot-scripts')
 launch_daemon = '/Library/LaunchDaemons/com.github.outset.boot.plist'
+launch_agent = '/Library/LaunchAgents/com.github.outset.login.plist'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -249,6 +250,8 @@ def main():
             process_items(login_every_dir)
         if os.listdir(login_once_dir):
             process_items(login_once_dir, once=True)
+        if not os.listdir(login_every_dir) and not os.listdir(login_once_dir):
+            cleanup(launch_agent)
     else:
         logging.error('Argument did not match "--boot" or "--login"')
         sys.exit(0)
