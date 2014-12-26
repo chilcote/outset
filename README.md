@@ -5,16 +5,16 @@ This script automatically processes packages and scripts at first boot and/or ea
 
 Requirements
 ------------
-+ [The Luggage](https://github.com/unixorn/luggage)  
 + python 2.7  
-+ I've only tested on 10.9.x. YMMV
++ I've only tested on 10.9+. YMMV
++ (and not explicitly required, but strongly recommended:)[The Luggage](https://github.com/unixorn/luggage)
 
 Usage
 -----
 
 The script is meant to be triggered by launchd so there is no interactive mode as such. The `--boot` argument is triggered by a LaunchDaemon and therefore will be run by root. The `--login` argument is triggered by a LaunchAgent, so it is running in the user context.  
 
-For testing purposes, one could manually run the command:  
+For testing purposes, one could manually run the command from the same directory as the outset script:
 
 	sudo ./outset --boot
 	./outset --login
@@ -24,14 +24,13 @@ For testing purposes, one could manually run the command:
 	/Library/LaunchDaemons/com.github.outset.boot.plist
 	/Library/LaunchAgents/com.github.outset.login.plist
 
-The first plist runs any scripts and packages you define to be processed at first boot or every boot by placing them in the following directories. Every boot scripts will run at each boot. First boot scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The first plist runs any scripts and packages you'd like to have processed at first boot or every boot by placing them in the following directories. Every boot scripts will run at each boot. First boot scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
 
 	/usr/local/outset/firstboot-packages
 	/usr/local/outset/firstboot-scripts
 	/usr/local/outset/everyboot-scripts
-  
 
-The second plist runs any scripts you define to be processed at login by placing them in the following directory, and will continue to run at every login (scripts in the `login-once` directory will only be run once per user):
+The second plist runs any scripts you wish to be processed at login by placing them in either of the following directories as applicable, and will continue to run at every login (scripts in the `login-once` directory will only be run once per user):
 
 	/usr/local/outset/login-every
 	/usr/local/outset/login-once
@@ -43,9 +42,13 @@ Logging
 	/var/log/outset.log
 	~/Library/Logs/outset.log
 
+Note: When testing, make sure all pkgs or scripts you populate in directories controlled by outset have root ownership, and should be in the wheel group with 755 permissions.
+
+	sudo chown root:wheel /usr/local/outset && chmod -R 755 /usr/local/outset
+
 Configuration
 -------------
-Use [The Luggage](https://github.com/unixorn/luggage) to create a package of the script and accompanying launchd plists. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
+Use [The Luggage](https://github.com/unixorn/luggage) or your packaging tool of choice to install the script, accompanying launchd plists, and any items you want processed. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
 
 	sudo make pkg
 
@@ -85,7 +88,7 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 
 Credits
 -------
-This script was an excuse for me to learn more about python. I learn best when I can pull apart existing scripts. As such, this script is heavily based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://code.google.com/p/munki/source/browse/code/client/managedsoftwareupdate#87).
+This script was an excuse for me to learn more about python. I learn best when I can pull apart existing scripts. As such, this script is heavily based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://github.com/munki/munki/blob/master/code/client/managedsoftwareupdate#L87).
 
 License
 -------
