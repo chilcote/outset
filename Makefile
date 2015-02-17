@@ -1,5 +1,6 @@
 USE_PKGBUILD=1
 include /usr/local/share/luggage/luggage.make
+PACKAGE_VERSION=1.0.0
 TITLE=outset_script
 REVERSE_DOMAIN=com.github.outset
 PAYLOAD= \
