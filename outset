@@ -20,6 +20,9 @@ This script scripts and installs pkgs at boot and/or login.
 #  under the License.
 ##############################################################################
 
+__author__  = 'Joseph Chilcote (chilcote@gmail.com)'
+__version__ = '1.0.0'
+
 import os
 import sys
 import subprocess
