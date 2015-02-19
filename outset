@@ -194,7 +194,7 @@ def run_script(pathname):
                                 stderr=subprocess.PIPE)
         logging.info('Processing %s' % pathname)
         (out, err) = proc.communicate()
-        if proc.returncode == 0 and err:
+        if err and proc.returncode == 0:
             logging.info('Output from %s on stderr but it still ran successfully: %s' % (pathname, err))
         elif proc.returncode > 0:
             logging.error('Failure processing %s: %s' % (pathname, err))
