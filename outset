@@ -224,7 +224,7 @@ def process_items(path, delete_items=False, once=False):
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
                 install_package(pathname)
             else:
-                logging.error('No valid script or package found')
+                logging.info('Item: (%s), at processed path considered invalid (not a pkg/dmg or script)' % os.path.basename(pathname))
         else:
             logging.error('Bad permissions: %s' % pathname)
         if delete_items:
