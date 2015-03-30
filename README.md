@@ -86,6 +86,8 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 	pack-usr-local-outset-login-once-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-once
 
+Alternatively, you can create a `luggage.local` file and place it in `/usr/local/share/luggage`. This will allow you to reduce your Luggage Makefile. Look in the LuggageExample folder for all the necessary files.
+
 Credits
 -------
 This script was an excuse for me to learn more about python. I learn best when I can pull apart existing scripts. As such, this script is heavily based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://github.com/munki/munki/blob/master/code/client/managedsoftwareupdate#L87).
