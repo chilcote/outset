@@ -24,13 +24,13 @@ For testing purposes, one could manually run the command from the same directory
 	/Library/LaunchDaemons/com.github.outset.boot.plist
 	/Library/LaunchAgents/com.github.outset.login.plist
 
-The first plist runs any scripts and packages you'd like to have processed at first boot or every boot by placing them in the following directories. Every boot scripts will run at each boot. First boot scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The first launchd job above runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in everyboot-scripts will run at each boot. Scripts/packages in firstboot-scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
 
 	/usr/local/outset/firstboot-packages
 	/usr/local/outset/firstboot-scripts
 	/usr/local/outset/everyboot-scripts
 
-The second plist runs any scripts you wish to be processed at login by placing them in either of the following directories as applicable, and will continue to run at every login (scripts in the `login-once` directory will only be run once per user):
+The second launchd job runs any scripts you wish to be processed at user login. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Login-every scripts will continue to be run at every login, while login-once scripts will only be run once per user:
 
 	/usr/local/outset/login-every
 	/usr/local/outset/login-once
