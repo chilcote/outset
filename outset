@@ -204,7 +204,7 @@ def run_script(pathname):
 def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run once at first boot'''
     if not os.path.exists(path):
-        logging.error('%s does not exists. Exiting' % path)
+        logging.error('%s does not exist. Exiting' % path)
         sys.exit(1)
     for f in os.listdir(path):
         pathname = os.path.join(path, f)
