@@ -234,7 +234,7 @@ def main():
     '''Main method'''
     if not len(sys.argv) == 2:
         logging.error('No or too many argument(s) given')
-        sys.exit(0)
+        sys.exit(2)
     if sys.argv[1] == '--boot':
         if os.listdir(firstboot_scripts_dir):
             disable_loginwindow()
@@ -254,7 +254,7 @@ def main():
             process_items(login_once_dir, once=True)
     else:
         logging.error('Argument did not match "--boot" or "--login"')
-        sys.exit(0)
+        sys.exit(2)
 
 if __name__ == '__main__':
   main()
