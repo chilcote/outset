@@ -92,6 +92,8 @@ Credits
 -------
 This script was an excuse for me to learn more about python. I learn best when I can pull apart existing scripts. As such, this script is heavily based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://github.com/munki/munki/blob/master/code/client/managedsoftwareupdate#L87).
 
+Outset uses [FoundationPlist](https://github.com/munki/munki/blob/master/code/client/munkilib/FoundationPlist.py), a library to work with binary plists written by Greg Neagle as part of his [Munki](https://github.com/munki) project.
+
 License
 -------
 
