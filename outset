@@ -5,7 +5,7 @@ This script scripts and installs pkgs at boot and/or login.
 '''
 
 ##############################################################################
-# Copyright 2014 Joseph Chilcote
+# Copyright 2014, 2015 Joseph Chilcote
 # 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy
@@ -21,7 +21,7 @@ This script scripts and installs pkgs at boot and/or login.
 ##############################################################################
 
 __author__  = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 import os
 import sys
@@ -35,6 +35,8 @@ import time
 import plistlib
 import datetime
 from stat import *
+
+import FoundationPlist
 
 outset_dir = '/usr/local/outset'
 login_every_dir = os.path.join(outset_dir, 'login-every')
@@ -212,13 +214,13 @@ def process_items(path, delete_items=False, once=False):
             if pathname.lower().endswith(('py', 'rb', 'sh')):
                 if once:
                     try:
-                        d = plistlib.readPlist(run_once_plist)
-                    except IOError:
+                        d = FoundationPlist.readPlist(run_once_plist)
+                    except FoundationPlist.FoundationPlistException:
                         d = {}
                     if pathname not in d:
                         run_script(pathname)
                         d[pathname] = datetime.datetime.now()
-                        plistlib.writePlist(d, run_once_plist)
+                        FoundationPlist.writePlist(d, run_once_plist)
                 else:
                     run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
