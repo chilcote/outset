@@ -33,7 +33,6 @@ import plistlib
 import shutil
 import socket
 import subprocess
-import sys
 import time
 from stat import *
 
@@ -208,7 +207,7 @@ def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run once at first boot'''
     if not os.path.exists(path):
         logging.error('%s does not exist. Exiting' % path)
-        sys.exit(1)
+        exit(1)
     for f in os.listdir(path):
         pathname = os.path.join(path, f)
         if check_perms(pathname):
