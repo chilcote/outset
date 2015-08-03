@@ -240,11 +240,12 @@ def main():
             processes packages and scripts at first boot \
             and/or each (subsequent) user login.')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--boot')
-    group.add_argument('--login')
-    group.add_argument('--on-demand')
+    group.add_argument('--boot', action='store_true')
+    group.add_argument('--login', action='store_true')
+    group.add_argument('--on-demand', action='store_true')
+    args = parser.parse_args()
 
-    if sys.argv[1] == '--boot':
+    if args.boot:
         if os.listdir(firstboot_scripts_dir):
             disable_loginwindow()
             sys_report()
@@ -256,12 +257,14 @@ def main():
         if os.listdir(firstboot_packages_dir):
             process_items(firstboot_packages_dir, delete_items=True)
         logging.info('boot processing complete')
-    elif sys.argv[1] == '--login':
+
+    if args.login:
         if os.listdir(login_every_dir):
             process_items(login_every_dir)
         if os.listdir(login_once_dir):
             process_items(login_once_dir, once=True)
-    elif sys.argv[1] == '--on-demand':
+
+    if args.login:
         if os.listdir(on_demand_dir):
             process_items(on_demand_dir, once=True)
 
