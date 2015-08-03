@@ -23,6 +23,7 @@ This script scripts and installs pkgs at boot and/or login.
 __author__  = 'Joseph Chilcote (chilcote@gmail.com)'
 __version__ = '1.0.1'
 
+import argparse
 import datetime
 import datetime
 import logging
@@ -234,6 +235,15 @@ def process_items(path, delete_items=False, once=False):
 
 def main():
     '''Main method'''
+    
+    parser = argparse.ArgumentParser(description='This script automatically \
+            processes packages and scripts at first boot \
+            and/or each (subsequent) user login.')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--boot')
+    group.add_argument('--login')
+    group.add_argument('--on-demand')
+
     if not len(sys.argv) == 2:
         logging.error('No or too many argument(s) given')
         sys.exit(2)
