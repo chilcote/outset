@@ -263,7 +263,7 @@ def main():
         if os.listdir(login_once_dir):
             process_items(login_once_dir, once=True)
 
-    if args.login:
+    if args.on_demand:
         if os.listdir(on_demand_dir):
             process_items(on_demand_dir, once=True)
 
