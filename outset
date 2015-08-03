@@ -242,13 +242,15 @@ def main():
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
     group.add_argument('--on-demand', action='store_true')
+    parser.add_argument('--do-not-wait', action='store_false')
     args = parser.parse_args()
 
     if args.boot:
         if os.listdir(firstboot_scripts_dir):
             disable_loginwindow()
             sys_report()
-            wait_for_network()
+            if not args.do_not_wait:
+                wait_for_network()
             process_items(firstboot_scripts_dir, delete_items=True)
             enable_loginwindow()
         if os.listdir(everyboot_scripts_dir):
