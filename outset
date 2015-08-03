@@ -23,17 +23,17 @@ This script scripts and installs pkgs at boot and/or login.
 __author__  = 'Joseph Chilcote (chilcote@gmail.com)'
 __version__ = '1.0.1'
 
-import os
-import sys
-import subprocess
-import shutil
+import datetime
+import datetime
 import logging
-import datetime
+import os
 import platform
-import socket
-import time
 import plistlib
-import datetime
+import shutil
+import socket
+import subprocess
+import sys
+import time
 from stat import *
 
 import FoundationPlist
