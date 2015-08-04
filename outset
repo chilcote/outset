@@ -29,7 +29,6 @@ import datetime
 import logging
 import os
 import platform
-import plistlib
 import shutil
 import socket
 import subprocess
@@ -45,6 +44,7 @@ on_demand_dir = os.path.join(outset_dir, 'on-demand')
 firstboot_scripts_dir = os.path.join(outset_dir, 'firstboot-scripts')
 firstboot_packages_dir = os.path.join(outset_dir, 'firstboot-packages')
 everyboot_scripts_dir = os.path.join(outset_dir, 'everyboot-scripts')
+outset_preferences = os.path.join(outset_dir, 'com.chilcote.outset.plist')
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -242,17 +242,25 @@ def main():
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
     group.add_argument('--on-demand', action='store_true')
-    parser.add_argument('--do-not-wait', action='store_false')
     args = parser.parse_args()
+
+    loginwindow = True
+    network_wait = True
+
+    if os.path.exists(outset_preferences):
+        prefs = FoundationPlist.readPlist(outset_preferences)
+        network_wait = prefs['wait_for_network']
 
     if args.boot:
         if os.listdir(firstboot_scripts_dir):
-            disable_loginwindow()
-            sys_report()
-            if not args.do_not_wait:
+            if network_wait:
+                loginwindow = False
+                disable_loginwindow()
                 wait_for_network()
+            sys_report()
             process_items(firstboot_scripts_dir, delete_items=True)
-            enable_loginwindow()
+            if not loginwindow:
+                enable_loginwindow()
         if os.listdir(everyboot_scripts_dir):
             process_items(everyboot_scripts_dir)
         if os.listdir(firstboot_packages_dir):

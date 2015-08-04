@@ -6,11 +6,13 @@ REVERSE_DOMAIN=com.github.outset
 PAYLOAD= \
 		pack-Library-LaunchDaemons-com.github.outset.boot.plist \
 		pack-Library-LaunchAgents-com.github.outset.login.plist \
+		pack-Library-LaunchAgents-com.github.outset.on-demand.plist \
 		pack-usr-local-outset-outset \
+		pack-usr-local-outset-com.chilcote.outset.plist \
 		pack-usr-local-outset-FoundationPlist
 
 l_usr_local_outset: l_usr_local
-	@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,everyboot-scripts,login-every,login-once,FoundationPlist}
+	@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,everyboot-scripts,login-every,login-once,on-demand,FoundationPlist}
 	@sudo chown -R root:wheel ${WORK_D}/usr/local/outset
 	@sudo chmod -R 755 ${WORK_D}/usr/local/outset
 
