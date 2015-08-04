@@ -70,9 +70,9 @@ def network_up():
                 return True
     return False
 
-def wait_for_network():
+def wait_for_network(timeout):
     '''Waits for a valid IP before continuing'''
-    for x in xrange(18):
+    for x in xrange(timeout):
         if network_up():
             return True
         else:
@@ -245,22 +245,25 @@ def main():
 
     loginwindow = True
     network_wait = True
+    network_timeout = 180
+    continue_firstboot = True
 
     if os.path.exists(outset_preferences):
         prefs = FoundationPlist.readPlist(outset_preferences)
         network_wait = prefs['wait_for_network']
+        network_timeout = prefs['network_timeout']
 
     if args.boot:
         if os.listdir(firstboot_scripts_dir):
             if network_wait:
                 loginwindow = False
                 disable_loginwindow()
-                if not wait_for_network():
-                    logging.error('Unable to connect to network. No firstboot-scripts have been run...')
-                    enable_loginwindow()
-                    exit(1)
-            sys_report()
-            process_items(firstboot_scripts_dir, delete_items=True)
+                continue_firstboot = True if wait_for_network(timeout=network_timeout//10) else False
+            if continue_firstboot:
+                sys_report()
+                process_items(firstboot_scripts_dir, delete_items=True)
+            else:
+                logging.error('Unable to connect to network. Skipping firstboot-scripts...')
             if not loginwindow:
                 enable_loginwindow()
         if os.listdir(everyboot_scripts_dir):
