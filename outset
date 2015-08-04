@@ -72,9 +72,9 @@ def network_up():
 
 def wait_for_network():
     '''Waits for a valid IP before continuing'''
-    while True:
+    for x in xrange(18):
         if network_up():
-            break
+            return True
         else:
             logging.info('Waiting for network')
             time.sleep(10)
@@ -255,7 +255,10 @@ def main():
             if network_wait:
                 loginwindow = False
                 disable_loginwindow()
-                wait_for_network()
+                if not wait_for_network():
+                    logging.error('Unable to connect to network. No firstboot-scripts have been run...')
+                    enable_loginwindow()
+                    exit(1)
             sys_report()
             process_items(firstboot_scripts_dir, delete_items=True)
             if not loginwindow:
