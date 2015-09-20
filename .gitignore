@@ -1,3 +1,4 @@
 sample*
 *.pkg
 *.dmg
+*.pyc
