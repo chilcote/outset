@@ -186,8 +186,12 @@ def install_package(pkg):
 def check_perms(pathname):
     mode = os.stat(pathname).st_mode
     owner = os.stat(pathname).st_uid
-    if owner == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
-        return True
+    if pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
+        if owner == 0 and not (mode & S_IWOTH):
+            return True
+    else:
+        if owner == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
+            return True
     return False
 
 def run_script(pathname):
