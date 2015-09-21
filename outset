@@ -192,16 +192,18 @@ def check_perms(pathname):
 
 def run_script(pathname):
     try:
-        proc = subprocess.Popen(pathname, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        proc = subprocess.Popen(pathname, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logging.info('Processing %s' % pathname)
         (out, err) = proc.communicate()
         if err and proc.returncode == 0:
             logging.info('Output from %s on stderr but it still ran successfully: %s' % (pathname, err))
         elif proc.returncode > 0:
             logging.error('Failure processing %s: %s' % (pathname, err))
-    except OSError:
-        logging.error('Failure processing %s: %s' % (pathname, OSError))
+            return False
+    except OSError as err:
+        logging.error('Failure processing %s: %s' % (pathname, err))
+        return False
+    return True
 
 def process_items(path, delete_items=False, once=False, bypass=False):
     '''Processes scripts/packages to run'''
@@ -219,11 +221,11 @@ def process_items(path, delete_items=False, once=False, bypass=False):
                         d = {}
                     if pathname not in d:
                         if not bypass:
-                            run_script(pathname)
-                        d[pathname] = datetime.datetime.now()
-                        FoundationPlist.writePlist(d, run_once_plist)
+                            if run_script(pathname):
+                                d[pathname] = datetime.datetime.now()
+                                FoundationPlist.writePlist(d, run_once_plist)
                 else:
-                    run_script(pathname)
+                    task = run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
                 install_package(pathname)
             else:
