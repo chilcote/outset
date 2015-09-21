@@ -25,6 +25,7 @@ __version__ = '1.0.1'
 
 import argparse
 import datetime
+import FoundationPlist
 import logging
 import os
 import platform
@@ -33,8 +34,8 @@ import socket
 import subprocess
 import time
 from stat import *
+from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
-import FoundationPlist
 
 outset_dir = '/usr/local/outset'
 login_every_dir = os.path.join(outset_dir, 'login-every')
@@ -202,8 +203,8 @@ def run_script(pathname):
     except OSError:
         logging.error('Failure processing %s: %s' % (pathname, OSError))
 
-def process_items(path, delete_items=False, once=False):
-    '''Processes scripts/packages to run once at first boot'''
+def process_items(path, delete_items=False, once=False, bypass=False):
+    '''Processes scripts/packages to run'''
     if not os.path.exists(path):
         logging.error('%s does not exist. Exiting' % path)
         exit(1)
@@ -217,7 +218,8 @@ def process_items(path, delete_items=False, once=False):
                     except FoundationPlist.FoundationPlistException:
                         d = {}
                     if pathname not in d:
-                        run_script(pathname)
+                        if not bypass:
+                            run_script(pathname)
                         d[pathname] = datetime.datetime.now()
                         FoundationPlist.writePlist(d, run_once_plist)
                 else:
@@ -233,7 +235,7 @@ def process_items(path, delete_items=False, once=False):
 
 def main():
     '''Main method'''
-    
+
     parser = argparse.ArgumentParser(description='This script automatically \
             processes packages and scripts at first boot \
             and/or each (subsequent) user login.')
@@ -280,8 +282,13 @@ def main():
 
     if args.on_demand:
         if os.listdir(on_demand_dir):
-            process_items(on_demand_dir, once=True)
-
+            console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
+            current_user = os.environ['USER']
+            if console_user not in ('root', 'loginwindow'):
+                if console_user == current_user:
+                    process_items(on_demand_dir, once=True)
+                else:
+                    process_items(on_demand_dir, once=True, bypass=True)
 
 if __name__ == '__main__':
   main()
