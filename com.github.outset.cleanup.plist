@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.github.outset.cleanup</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/outset/outset</string>
+		<string>--cleanup</string>
+	</array>
+  <key>KeepAlive</key>
+  <dict>
+     <key>PathState</key>
+     <dict>
+       <key>/private/tmp/.com.github.outset.cleanup.launchd</key>
+       <true/>
+     </dict>
+  </dict>
+  <key>OnDemand</key>
+  <true/>
+</dict>
+</plist>

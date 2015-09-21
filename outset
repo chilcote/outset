@@ -45,6 +45,8 @@ firstboot_scripts_dir = os.path.join(outset_dir, 'firstboot-scripts')
 firstboot_packages_dir = os.path.join(outset_dir, 'firstboot-packages')
 everyboot_scripts_dir = os.path.join(outset_dir, 'everyboot-scripts')
 outset_preferences = os.path.join(outset_dir, 'com.chilcote.outset.plist')
+on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
+cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -209,7 +211,7 @@ def run_script(pathname):
         return False
     return True
 
-def process_items(path, delete_items=False, once=False, bypass=False):
+def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run'''
     if not os.path.exists(path):
         logging.error('%s does not exist. Exiting' % path)
@@ -224,10 +226,9 @@ def process_items(path, delete_items=False, once=False, bypass=False):
                     except FoundationPlist.FoundationPlistException:
                         d = {}
                     if pathname not in d:
-                        if not bypass:
-                            if run_script(pathname):
-                                d[pathname] = datetime.datetime.now()
-                                FoundationPlist.writePlist(d, run_once_plist)
+                        if run_script(pathname):
+                            d[pathname] = datetime.datetime.now()
+                            FoundationPlist.writePlist(d, run_once_plist)
                 else:
                     task = run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
@@ -249,6 +250,7 @@ def main():
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
     group.add_argument('--on-demand', action='store_true')
+    group.add_argument('--cleanup', action='store_true')
     args = parser.parse_args()
 
     loginwindow = True
@@ -292,9 +294,20 @@ def main():
             current_user = os.environ['USER']
             if console_user not in ('root', 'loginwindow'):
                 if console_user == current_user:
-                    process_items(on_demand_dir, once=True)
+                    process_items(on_demand_dir)
                 else:
-                    process_items(on_demand_dir, once=True, bypass=True)
+                    logging.info('User %s is not the current console user. Skipping on-demand run.' % current_user)
+        open(cleanup_trigger, 'w').close()
+
+    if args.cleanup:
+        logging.info('Cleaning up on-demand directory.')
+        if os.path.exists(on_demand_trigger):
+            cleanup(on_demand_trigger)
+        if os.listdir(on_demand_dir):
+            for f in os.listdir(on_demand_dir):
+                cleanup(os.path.join(on_demand_dir, f))
+        if os.path.exists(cleanup_trigger):
+            cleanup(cleanup_trigger)
 
 if __name__ == '__main__':
   main()

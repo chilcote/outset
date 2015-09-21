@@ -5,6 +5,7 @@ TITLE=outset_script
 REVERSE_DOMAIN=com.github.outset
 PAYLOAD= \
 		pack-Library-LaunchDaemons-com.github.outset.boot.plist \
+		pack-Library-LaunchDaemons-com.github.outset.cleanup.plist \
 		pack-Library-LaunchAgents-com.github.outset.login.plist \
 		pack-Library-LaunchAgents-com.github.outset.on-demand.plist \
 		pack-usr-local-outset-outset \
