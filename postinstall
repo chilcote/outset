@@ -1,0 +1,14 @@
+#!/bin/bash
+# reference: https://github.com/google/macops/blob/master/keychainminder/Package/postinstall
+
+[[ $3 != "/" ]] && exit 0
+
+/bin/launchctl load /Library/LaunchDaemons/com.github.outset.boot.plist
+/bin/launchctl load /Library/LaunchDaemons/com.github.outset.cleanup.plist
+
+user=$(/usr/bin/stat -f '%u' /dev/console)
+[[ -z "$user" ]] && exit 0
+/bin/launchctl asuser ${user} /bin/launchctl load /Library/LaunchAgents/com.github.outset.login.plist
+/bin/launchctl asuser ${user} /bin/launchctl load /Library/LaunchAgents/com.github.outset.on-demand.plist
+
+exit 0

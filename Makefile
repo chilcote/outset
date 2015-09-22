@@ -10,7 +10,8 @@ PAYLOAD= \
 		pack-Library-LaunchAgents-com.github.outset.on-demand.plist \
 		pack-usr-local-outset-outset \
 		pack-usr-local-outset-com.chilcote.outset.plist \
-		pack-usr-local-outset-FoundationPlist
+		pack-usr-local-outset-FoundationPlist \
+		pack-script-postinstall
 
 l_usr_local_outset: l_usr_local
 	@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,everyboot-scripts,login-every,login-once,on-demand,FoundationPlist}
