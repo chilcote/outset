@@ -136,6 +136,28 @@ def sys_report():
     logging.debug('OS: %s' % get_osversion())
     logging.debug('Build: %s' % get_buildversion())
 
+def sha1OfFile(pathname):
+    '''Calculate sha1 has of given script'''
+    import hashlib
+    BLOCKSIZE = 65536
+    hasher = hashlib.sha1()
+    with open(pathname, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return(hasher.hexdigest())
+
+def check_update(pathname):
+    '''Check for update keyword inside a given script, on 2nd line'''
+    from itertools import islice
+    with open(pathname) as fin:
+        for line in islice(fin, 1, 2):
+            if 'True' in line:
+                return True
+            else:
+                return False
+
 def cleanup(pathname):
     '''Deletes given script'''
     try:
@@ -227,8 +249,13 @@ def process_items(path, delete_items=False, once=False):
                         d = {}
                     if pathname not in d:
                         if run_script(pathname):
-                            d[pathname] = datetime.datetime.now()
+                            d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
                             FoundationPlist.writePlist(d, run_once_plist)
+                    if check_update(pathname):
+                      if sha1OfFile(pathname) != d[pathname][1]:
+                          if run_script(pathname):
+                              d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
+                              FoundationPlist.writePlist(d, run_once_plist)  
                 else:
                     task = run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
