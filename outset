@@ -252,10 +252,15 @@ def process_items(path, delete_items=False, once=False):
                             d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
                             FoundationPlist.writePlist(d, run_once_plist)
                     if check_update(pathname):
-                      if sha1OfFile(pathname) != d[pathname][1]:
-                          if run_script(pathname):
-                              d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
-                              FoundationPlist.writePlist(d, run_once_plist)  
+                        try:
+                            if sha1OfFile(pathname) != d[pathname][1]:
+                                if run_script(pathname):
+                                    d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
+                                    FoundationPlist.writePlist(d, run_once_plist)
+                        except(NameError):
+                            if run_script(pathname):
+                                d[pathname] = datetime.datetime.now(), sha1OfFile(pathname)
+                                FoundationPlist.writePlist(d, run_once_plist)
                 else:
                     task = run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
