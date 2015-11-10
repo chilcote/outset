@@ -136,6 +136,29 @@ def sys_report():
     logging.debug('OS: %s' % get_osversion())
     logging.debug('Build: %s' % get_buildversion())
 
+def sha1OfFile(pathname):
+    '''Calculate sha1 hash of a given script'''
+    import hashlib
+    BLOCKSIZE = 65536
+    hasher = hashlib.sha1()
+    with open(pathname, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return(hasher.hexdigest())
+
+def check_update(pathname):
+    '''Check for update keyword inside a given script
+    on the second line. Must match "Update = True" exactly.'''
+    from itertools import islice
+    with open(pathname) as fin:
+        for line in islice(fin, 1, 2):
+            if 'Update = True' in line:
+                return True
+            else:
+                return False
+
 def cleanup(pathname):
     '''Deletes given script'''
     try:
@@ -225,10 +248,23 @@ def process_items(path, delete_items=False, once=False):
                         d = FoundationPlist.readPlist(run_once_plist)
                     except FoundationPlist.FoundationPlistException:
                         d = {}
+                    # format plist key values
+                    pl = {}
+                    pl[pathname] = dict(
+                        date=datetime.datetime.now(),
+                        sha1=sha1OfFile(pathname),
+                        )
                     if pathname not in d:
                         if run_script(pathname):
-                            d[pathname] = datetime.datetime.now()
-                            FoundationPlist.writePlist(d, run_once_plist)
+                            FoundationPlist.writePlist(pl, run_once_plist)
+                    if check_update(pathname):
+                        try:
+                            if sha1OfFile(pathname) != d[pathname]['sha1']:
+                                if run_script(pathname):
+                                    FoundationPlist.writePlist(pl, run_once_plist)
+                        except(NameError, KeyError):
+                            if run_script(pathname):
+                                FoundationPlist.writePlist(pl, run_once_plist)
                 else:
                     task = run_script(pathname)
             elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
