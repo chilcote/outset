@@ -1,6 +1,6 @@
 USE_PKGBUILD=1
 include /usr/local/share/luggage/luggage.make
-PACKAGE_VERSION=1.0.2
+PACKAGE_VERSION=1.0.3
 TITLE=outset
 REVERSE_DOMAIN=com.github.outset
 PAYLOAD= \
@@ -9,8 +9,8 @@ PAYLOAD= \
 		pack-Library-LaunchAgents-com.github.outset.login.plist \
 		pack-Library-LaunchAgents-com.github.outset.on-demand.plist \
 		pack-usr-local-outset-outset \
-		pack-usr-local-outset-com.chilcote.outset.plist \
 		pack-usr-local-outset-FoundationPlist \
+		pack-usr-local-outset-share-com.chilcote.outset.plist \
 		pack-script-postinstall
 
 l_usr_local_outset: l_usr_local
@@ -20,6 +20,9 @@ l_usr_local_outset: l_usr_local
 
 pack-usr-local-outset-%: % l_usr_local_outset
 	@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset
+
+pack-usr-local-outset-share-%: % l_usr_local_outset
+	@sudo ${INSTALL} -m 644 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/share
 
 pack-usr-local-outset-FoundationPlist: l_usr_local_outset
 	@sudo ${CP} -r "FoundationPlist" ${WORK_D}/usr/local/outset/

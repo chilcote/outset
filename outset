@@ -21,7 +21,7 @@ This script scripts and installs pkgs at boot and/or login.
 ##############################################################################
 
 __author__  = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '1.0.1'
+__version__ = '1.0.3'
 
 import argparse
 import datetime
@@ -43,7 +43,8 @@ login_once_dir = os.path.join(outset_dir, 'login-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
 boot_once_dir = os.path.join(outset_dir, 'boot-once')
 boot_every_dir = os.path.join(outset_dir, 'boot-every')
-outset_preferences = os.path.join(outset_dir, 'com.chilcote.outset.plist')
+share_dir = os.path.join(outset_dir, 'share')
+outset_preferences = os.path.join(share_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
 cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
 
