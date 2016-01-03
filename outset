@@ -41,9 +41,8 @@ outset_dir = '/usr/local/outset'
 login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
-firstboot_scripts_dir = os.path.join(outset_dir, 'firstboot-scripts')
-firstboot_packages_dir = os.path.join(outset_dir, 'firstboot-packages')
-everyboot_scripts_dir = os.path.join(outset_dir, 'everyboot-scripts')
+boot_once_dir = os.path.join(outset_dir, 'boot-once')
+boot_every_dir = os.path.join(outset_dir, 'boot-every')
 outset_preferences = os.path.join(outset_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
 cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
@@ -122,7 +121,7 @@ def get_buildversion():
     cmd = ['/usr/sbin/sysctl', '-n', 'kern.osversion']
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()    
+    (out, err) = proc.communicate()
     return out.strip()
 
 def get_osversion():
@@ -213,32 +212,41 @@ def run_script(pathname):
 
 def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run'''
+
     if not os.path.exists(path):
         logging.error('%s does not exist. Exiting' % path)
         exit(1)
+
+    packages = []
+    scripts = []
+
     for f in os.listdir(path):
         pathname = os.path.join(path, f)
         if check_perms(pathname):
-            if pathname.lower().endswith(('py', 'rb', 'sh')):
-                if once:
-                    try:
-                        d = FoundationPlist.readPlist(run_once_plist)
-                    except FoundationPlist.FoundationPlistException:
-                        d = {}
-                    if pathname not in d:
-                        if run_script(pathname):
-                            d[pathname] = datetime.datetime.now()
-                            FoundationPlist.writePlist(d, run_once_plist)
-                else:
-                    task = run_script(pathname)
-            elif pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
-                install_package(pathname)
+            if pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
+                packages.append(pathname)
             else:
-                logging.info('Item: (%s), at processed path considered invalid (not a pkg/dmg or script)' % os.path.basename(pathname))
+                scripts.append(pathname)
         else:
             logging.error('Bad permissions: %s' % pathname)
-        if delete_items:
-            cleanup(pathname)
+
+    for package in packages:
+        install_package(package)
+        if delete_items: cleanup(package)
+
+    for script in scripts:
+        if once:
+            try:
+                d = FoundationPlist.readPlist(run_once_plist)
+            except FoundationPlist.FoundationPlistException:
+                d = {}
+            if script not in d:
+                if run_script(script):
+                    d[script] = datetime.datetime.now()
+                    FoundationPlist.writePlist(d, run_once_plist)
+        else:
+            task = run_script(script)
+        if delete_items: cleanup(script)
 
 def main():
     '''Main method'''
@@ -264,22 +272,20 @@ def main():
         network_timeout = prefs['network_timeout']
 
     if args.boot:
-        if os.listdir(firstboot_scripts_dir):
+        if os.listdir(boot_once_dir):
             if network_wait:
                 loginwindow = False
                 disable_loginwindow()
                 continue_firstboot = True if wait_for_network(timeout=network_timeout//10) else False
             if continue_firstboot:
                 sys_report()
-                process_items(firstboot_scripts_dir, delete_items=True)
+                process_items(boot_once_dir, delete_items=True)
             else:
-                logging.error('Unable to connect to network. Skipping firstboot-scripts...')
+                logging.error('Unable to connect to network. Skipping boot-once scripts...')
             if not loginwindow:
                 enable_loginwindow()
-        if os.listdir(everyboot_scripts_dir):
-            process_items(everyboot_scripts_dir)
-        if os.listdir(firstboot_packages_dir):
-            process_items(firstboot_packages_dir, delete_items=True)
+        if os.listdir(boot_every_dir):
+            process_items(boot_every_dir)
         logging.info('boot processing complete')
 
     if args.login:
