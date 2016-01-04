@@ -19,21 +19,26 @@ For testing purposes, one could manually run the command from the same directory
 	sudo ./outset --boot
 	./outset --login
 
-`outset` is controlled by two launchd plists:
+`outset` is controlled by four launchd plists:
 
 	/Library/LaunchDaemons/com.github.outset.boot.plist
+	/Library/LaunchDaemons/com.github.outset.cleanup.plist
 	/Library/LaunchAgents/com.github.outset.login.plist
+	/Library/LaunchAgents/com.github.outset.on-demand.plist
 
-The first launchd job above runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in everyboot-scripts will run at each boot. Scripts/packages in firstboot-scripts/packages will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The com.github.outset.boot.plist launch daemon runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in boot-every will run at each boot. Scripts/packages in boot-once will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
 
-	/usr/local/outset/firstboot-packages
-	/usr/local/outset/firstboot-scripts
-	/usr/local/outset/everyboot-scripts
+	/usr/local/outset/boot-once
+	/usr/local/outset/boot-every
 
-The second launchd job runs any scripts you wish to be processed at user login. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Login-every scripts will continue to be run at every login, while login-once scripts will only be run once per user:
+The com.github.outset.login.plist launch agent runs any scripts you wish to be processed at user login. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Login-every scripts will continue to be run at every login, while login-once scripts will only be run once per user:
 
-	/usr/local/outset/login-every
 	/usr/local/outset/login-once
+	/usr/local/outset/login-every
+
+The com.github.outset.on-demand.plist launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below.  On-demand scripts will be immediately removed by the com.github.outset.cleanup.plist launch daemon, so they will not run for subsequent logins
+
+	/usr/local/outset/on-demand
 
 Logging
 -------
@@ -42,51 +47,47 @@ Logging
 	/var/log/outset.log
 	~/Library/Logs/outset.log
 
-Note: When testing, make sure all pkgs or scripts you populate in directories controlled by outset have root ownership, and should be in the wheel group with 755 permissions.
+Note: When testing, make sure all scripts you populate in directories controlled by outset have root ownership, and should be in the wheel group with 755 permissions. Pkgs should also be owned by root, and should have 644 permissions
 
-	sudo chown root:wheel /usr/local/outset && chmod -R 755 /usr/local/outset
+	sudo chown root:wheel /usr/local/outset && chmod -R 755 /usr/local/outset/boot-every/*
+	sudo chmod -R 644 /usr/local/outset/boot-every/*.pkg
 
 Configuration
 -------------
-Use [The Luggage](https://github.com/unixorn/luggage) or your packaging tool of choice to install the script, accompanying launchd plists, and any items you want processed. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
+Download the [latest release](https://github.com/chilcote/outset/releases) or alternatively use [The Luggage](https://github.com/unixorn/luggage) or your packaging tool of choice to install the script, accompanying launchd plists, and any items you want processed. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
 
 	sudo make pkg
 
-You can also use The Luggage to package up some scripts to be run by `outset`. Here is an example Makefile that would package up some hypothetical scripts and packages to be installed at first boot, every boot, each login, and first login:
+You can also use The Luggage to package up some scripts to be run by `outset`. Here is an example Makefile that would package up some hypothetical scripts and packages to be installed at boot, every boot, each login, and first login:
 
 	USE_PKGBUILD=1
 	include /usr/local/share/luggage/luggage.make
 	TITLE=outset_resources_sample
 	REVERSE_DOMAIN=com.github.outset
 	PAYLOAD= \
-			pack-usr-local-outset-firstboot-packages-sample_pkg.dmg \
-			pack-usr-local-outset-firstboot-packages-sample_pkg.pkg \
-			pack-usr-local-outset-firstboot-scripts-sample_script_firstboot.py \
-			pack-usr-local-outset-everyboot-scripts-sample_script_every.py \
+			pack-usr-local-outset-boot-once-sample_pkg.dmg \
+			pack-usr-local-outset-boot-once-sample_pkg.pkg \
+			pack-usr-local-outset-boot-once-sample_script_firstboot.py \
+			pack-usr-local-outset-boot-every-sample_script_every.py \
 			pack-usr-local-outset-login-every-sample_script_every.py \
 			pack-usr-local-outset-login-once-sample_script_once.py
 
 	l_usr_local_outset: l_usr_local
-		@sudo mkdir -p ${WORK_D}/usr/local/outset/{firstboot-packages,firstboot-scripts,everyboot-scripts,login-every,login-once}
+		@sudo mkdir -p ${WORK_D}/usr/local/outset/{boot-once,boot-every,login-once,login-every,on-demand,share,FoundationPlist}
 		@sudo chown -R root:wheel ${WORK_D}/usr/local/outset
 		@sudo chmod -R 755 ${WORK_D}/usr/local/outset
 
-	pack-usr-local-outset-firstboot-packages-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/firstboot-packages
+	pack-usr-local-outset-boot-once-%: % l_usr_local_outset
+		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/boot-once
 
-	pack-usr-local-outset-firstboot-scripts-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/firstboot-scripts
-
-	pack-usr-local-outset-everyboot-scripts-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/everyboot-scripts
-
-	pack-usr-local-outset-login-every-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-every
+	pack-usr-local-outset-boot-every-%: % l_usr_local_outset
+		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/boot-every
 
 	pack-usr-local-outset-login-once-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-once
 
-Alternatively, you can create a `luggage.local` file and place it in `/usr/local/share/luggage`. This will allow you to reduce your Luggage Makefile. Look in the LuggageExample folder for all the necessary files.
+	pack-usr-local-outset-login-every-%: % l_usr_local_outset
+		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-every
 
 Credits
 -------
@@ -97,7 +98,7 @@ Outset uses [FoundationPlist](https://github.com/munki/munki/blob/master/code/cl
 License
 -------
 
-	Copyright 2014 Joseph Chilcote
+	Copyright 2016 Joseph Chilcote
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
