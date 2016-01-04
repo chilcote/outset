@@ -26,17 +26,17 @@ For testing purposes, one could manually run the command from the same directory
 	/Library/LaunchAgents/com.github.outset.login.plist
 	/Library/LaunchAgents/com.github.outset.on-demand.plist
 
-The com.github.outset.boot.plist launch daemon runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in boot-every will run at each boot. Scripts/packages in boot-once will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The `com.github.outset.boot.plist` launch daemon runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in the `boot-every` directory will run at each boot. Scripts/packages in `boot-once` directory will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
 
 	/usr/local/outset/boot-once
 	/usr/local/outset/boot-every
 
-The com.github.outset.login.plist launch agent runs any scripts you wish to be processed at user login. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Login-every scripts will continue to be run at every login, while login-once scripts will only be run once per user:
+The `com.github.outset.login.plist` launch agent runs any scripts you wish to be processed at user login. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. `Login-every` scripts will continue to be run at every login, while `login-once` scripts will only be run once per user:
 
 	/usr/local/outset/login-once
 	/usr/local/outset/login-every
 
-The com.github.outset.on-demand.plist launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below.  On-demand scripts will be immediately removed by the com.github.outset.cleanup.plist launch daemon, so they will not run for subsequent logins
+The `com.github.outset.on-demand.plist` launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below.  `On-demand` scripts will be immediately removed by the `com.github.outset.cleanup.plist` launch daemon, so they will **not** run for subsequent logins:
 
 	/usr/local/outset/on-demand
 
@@ -47,7 +47,7 @@ Logging
 	/var/log/outset.log
 	~/Library/Logs/outset.log
 
-Note: When testing, make sure all scripts you populate in directories controlled by outset have root ownership, and should be in the wheel group with 755 permissions. Pkgs should also be owned by root, and should have 644 permissions
+Note: Make sure all scripts you use in the controlled directories listed above have 'root' ownership, the group set to 'wheel', and permissions set to '755'. Packages should also have the ownership of 'root', and should have '644' permissions:
 
 	sudo chown root:wheel /usr/local/outset && chmod -R 755 /usr/local/outset/boot-every/*
 	sudo chmod -R 644 /usr/local/outset/boot-every/*.pkg
