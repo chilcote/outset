@@ -287,7 +287,7 @@ def main():
                 enable_loginwindow()
         if os.listdir(boot_every_dir):
             process_items(boot_every_dir)
-        logging.info('boot processing complete')
+        logging.info('Boot processing complete')
 
     if args.login:
         if os.listdir(login_every_dir):
@@ -296,6 +296,7 @@ def main():
             process_items(login_once_dir, once=True)
 
     if args.on_demand:
+        logging.info('Running on-demand script(s)')
         if os.listdir(on_demand_dir):
             console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
             current_user = os.environ['USER']
@@ -305,6 +306,9 @@ def main():
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.' % current_user)
         open(cleanup_trigger, 'w').close()
+        time.sleep(0.5)
+        if os.path.exists(cleanup_trigger):
+            cleanup(cleanup_trigger)
 
     if args.cleanup:
         logging.info('Cleaning up on-demand directory.')
@@ -313,8 +317,7 @@ def main():
         if os.listdir(on_demand_dir):
             for f in os.listdir(on_demand_dir):
                 cleanup(os.path.join(on_demand_dir, f))
-        if os.path.exists(cleanup_trigger):
-            cleanup(cleanup_trigger)
+        time.sleep(5)
 
 if __name__ == '__main__':
   main()
