@@ -296,15 +296,17 @@ def main():
             process_items(login_once_dir, once=True)
 
     if args.on_demand:
-        logging.info('Running on-demand script(s)')
         if os.listdir(on_demand_dir):
             console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
             current_user = os.environ['USER']
             if console_user not in ('root', 'loginwindow'):
                 if console_user == current_user:
+                    logging.info('Running on-demand script(s)')
                     process_items(on_demand_dir)
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.' % current_user)
+            else:
+                logging.info('No current user session. Skipping on-demand run.')
         open(cleanup_trigger, 'w').close()
         time.sleep(0.5)
         if os.path.exists(cleanup_trigger):
