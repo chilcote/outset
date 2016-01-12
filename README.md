@@ -36,7 +36,7 @@ The `com.github.outset.login.plist` launch agent runs any scripts you wish to be
 	/usr/local/outset/login-once
 	/usr/local/outset/login-every
 
-The `com.github.outset.on-demand.plist` launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below.  `On-demand` scripts will be immediately removed by the `com.github.outset.cleanup.plist` launch daemon, so they will **not** run for subsequent logins:
+The `com.github.outset.on-demand.plist` launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below, and then terigger the `on-demand` run by touching the file at `/private/tmp/.com.github.outset.ondemand.launchd`, i.e. with a postinstall script. `On-demand` scripts will be immediately removed by the `com.github.outset.cleanup.plist` launch daemon, so they will **not** run for subsequent logins:
 
 	/usr/local/outset/on-demand
 
