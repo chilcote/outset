@@ -21,7 +21,7 @@ This script scripts and installs pkgs at boot and/or login.
 ##############################################################################
 
 __author__  = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '1.0.3'
+__version__ = '2.0.0'
 
 import argparse
 import datetime
@@ -260,6 +260,7 @@ def main():
     group.add_argument('--login', action='store_true')
     group.add_argument('--on-demand', action='store_true')
     group.add_argument('--cleanup', action='store_true')
+    group.add_argument('--version', action='store_true')
     args = parser.parse_args()
 
     loginwindow = True
@@ -320,6 +321,9 @@ def main():
             for f in os.listdir(on_demand_dir):
                 cleanup(os.path.join(on_demand_dir, f))
         time.sleep(5)
+
+    if args.version:
+        print __version__
 
 if __name__ == '__main__':
   main()
