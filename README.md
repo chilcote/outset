@@ -70,7 +70,8 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 			pack-usr-local-outset-boot-once-sample_script_firstboot.py \
 			pack-usr-local-outset-boot-every-sample_script_every.py \
 			pack-usr-local-outset-login-every-sample_script_every.py \
-			pack-usr-local-outset-login-once-sample_script_once.py
+			pack-usr-local-outset-login-once-sample_script_once.py \
+			pack-usr-local-outset-on-demand-sample_script_on-demand.py
 
 	l_usr_local_outset: l_usr_local
 		@sudo mkdir -p ${WORK_D}/usr/local/outset/{boot-once,boot-every,login-once,login-every,on-demand,share,FoundationPlist}
@@ -88,6 +89,9 @@ You can also use The Luggage to package up some scripts to be run by `outset`. H
 
 	pack-usr-local-outset-login-every-%: % l_usr_local_outset
 		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-every
+
+	pack-usr-local-outset-on-demand-%: % l_usr_local_outset
+		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/on-demand
 
 Credits
 -------
