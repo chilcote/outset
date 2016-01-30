@@ -303,7 +303,10 @@ def main():
             if console_user not in ('root', 'loginwindow'):
                 if console_user == current_user:
                     logging.info('Running on-demand script(s)')
-                    process_items(on_demand_dir)
+                    if os.listdir(on_demand_dir):
+                        process_items(on_demand_dir)
+                    if os.listdir(login_once_dir):
+                        process_items(login_once_dir, once=True)
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.' % current_user)
             else:
