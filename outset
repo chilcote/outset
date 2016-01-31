@@ -164,6 +164,17 @@ def detach_dmg(dmg_mount):
     if err:
         logging.error('Unable to detach %s: %s' % (dmg_mount, err))        
 
+def check_perms(pathname):
+    mode = os.stat(pathname).st_mode
+    owner = os.stat(pathname).st_uid
+    if pathname.lower().endswith(('pkg', 'mpkg', 'dmg', 'mobileconfig')):
+        if owner == 0 and not (mode & S_IWOTH):
+            return True
+    else:
+        if owner == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
+            return True
+    return False
+
 def install_package(pkg):
     '''Installs pkg onto boot drive'''
     if pkg.lower().endswith('dmg'):
@@ -185,18 +196,23 @@ def install_package(pkg):
         time.sleep(5)
         detach_dmg(dmg_mount)
 
-def check_perms(pathname):
-    mode = os.stat(pathname).st_mode
-    owner = os.stat(pathname).st_uid
-    if pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
-        if owner == 0 and not (mode & S_IWOTH):
-            return True
-    else:
-        if owner == 0 and (mode & S_IXOTH) and not (mode & S_IWOTH):
-            return True
-    return False
+def install_profile(pathname):
+    '''Install mobileconfig located at given pathname'''
+    cmd = ['/usr/bin/profiles', '-IF', pathname]
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        logging.info('Installing profile %s' % pathname)
+        (out, err) = proc.communicate()
+        if err:
+            logging.error('Failure processing %s: %s' % (pathname, err))
+            return False
+    except OSError as err:
+        logging.error('Failure processing %s: %s' % (pathname, err))
+        return False
+    return True
 
 def run_script(pathname):
+    '''Runs script located at given pathname'''
     try:
         proc = subprocess.Popen(pathname, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logging.info('Processing %s' % pathname)
@@ -220,34 +236,51 @@ def process_items(path, delete_items=False, once=False):
 
     packages = []
     scripts = []
+    profiles = []
+    d = {}
 
     for f in os.listdir(path):
         pathname = os.path.join(path, f)
         if check_perms(pathname):
             if pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
                 packages.append(pathname)
+            elif pathname.lower().endswith('mobileconfig'):
+                profiles.append(pathname)
             else:
                 scripts.append(pathname)
         else:
             logging.error('Bad permissions: %s' % pathname)
 
+    if once:
+        try:
+            d = FoundationPlist.readPlist(run_once_plist)
+        except FoundationPlist.FoundationPlistException:
+            d = {}
+
     for package in packages:
         install_package(package)
         if delete_items: cleanup(package)
 
+    for profile in profiles:
+        if once:
+            if profile not in d:
+                if install_profile(profile):
+                    d[profile] = datetime.datetime.now()
+        else:
+            task = install_profile(profile)
+        if delete_items: cleanup(profile)
+
     for script in scripts:
         if once:
-            try:
-                d = FoundationPlist.readPlist(run_once_plist)
-            except FoundationPlist.FoundationPlistException:
-                d = {}
             if script not in d:
                 if run_script(script):
                     d[script] = datetime.datetime.now()
-                    FoundationPlist.writePlist(d, run_once_plist)
         else:
             task = run_script(script)
         if delete_items: cleanup(script)
+
+    if d:
+        FoundationPlist.writePlist(d, run_once_plist)
 
 def main():
     '''Main method'''
