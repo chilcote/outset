@@ -292,6 +292,8 @@ def main():
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
     group.add_argument('--on-demand', action='store_true')
+    group.add_argument('--login-every', action='store_true')
+    group.add_argument('--login-once', action='store_true')
     group.add_argument('--cleanup', action='store_true')
     group.add_argument('--version', action='store_true')
     args = parser.parse_args()
@@ -336,10 +338,7 @@ def main():
             if console_user not in ('root', 'loginwindow'):
                 if console_user == current_user:
                     logging.info('Running on-demand script(s)')
-                    if os.listdir(on_demand_dir):
-                        process_items(on_demand_dir)
-                    if os.listdir(login_once_dir):
-                        process_items(login_once_dir, once=True)
+                    process_items(on_demand_dir)
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.' % current_user)
             else:
@@ -348,6 +347,14 @@ def main():
         time.sleep(0.5)
         if os.path.exists(cleanup_trigger):
             cleanup(cleanup_trigger)
+
+    if args.login_every:
+        if os.listdir(login_every_dir):
+            process_items(login_every_dir)
+
+    if args.login_once:
+        if os.listdir(login_once_dir):
+            process_items(login_once_dir, once=True)
 
     if args.cleanup:
         logging.info('Cleaning up on-demand directory.')
