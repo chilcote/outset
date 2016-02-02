@@ -6,13 +6,13 @@ This script scripts and installs pkgs at boot and/or login.
 
 ##############################################################################
 # Copyright 2014, 2015 Joseph Chilcote
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy
-#  of the License at  
-# 
+#  of the License at
+#
 #       http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,7 +20,7 @@ This script scripts and installs pkgs at boot and/or login.
 #  under the License.
 ##############################################################################
 
-__author__  = 'Joseph Chilcote (chilcote@gmail.com)'
+__author__ = 'Joseph Chilcote (chilcote@gmail.com)'
 __version__ = '2.0.0'
 
 import argparse
@@ -64,7 +64,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s',
 def network_up():
     '''Returns True if network is up'''
     cmd = ['/sbin/ifconfig', '-a', 'inet']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
     for line in str(out).splitlines():
@@ -146,7 +146,7 @@ def cleanup(pathname):
 def mount_dmg(dmg):
     '''Attaches dmg'''
     dmg_path = os.path.join(dmg)
-    cmd = ['hdiutil', 'attach', '-nobrowse','-noverify', 
+    cmd = ['hdiutil', 'attach', '-nobrowse','-noverify',
                             '-noautoopen', dmg_path]
     logging.info('Attaching %s' % dmg_path)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -162,7 +162,7 @@ def detach_dmg(dmg_mount):
                               stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
     if err:
-        logging.error('Unable to detach %s: %s' % (dmg_mount, err))        
+        logging.error('Unable to detach %s: %s' % (dmg_mount, err))
 
 def check_perms(pathname):
     mode = os.stat(pathname).st_mode
