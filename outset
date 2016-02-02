@@ -25,6 +25,7 @@ __version__ = '2.0.0'
 
 import argparse
 import datetime
+import FoundationPlist
 import logging
 import os
 import platform
@@ -32,7 +33,6 @@ import shutil
 import subprocess
 import time
 from stat import S_IXOTH, S_IWOTH
-import FoundationPlist
 from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
 
