@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 '''
-This script scripts and installs pkgs at boot and/or login.
+Run scripts and install pkgs or profiles at boot and/or login.
 '''
 
 ##############################################################################
@@ -297,14 +297,20 @@ def main():
     args = parser.parse_args()
 
     loginwindow = True
+    console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
     network_wait = True
     network_timeout = 180
+    ignored_users = []
     continue_firstboot = True
 
     if os.path.exists(outset_preferences):
         prefs = FoundationPlist.readPlist(outset_preferences)
-        network_wait = prefs['wait_for_network']
-        network_timeout = prefs['network_timeout']
+        if prefs.get('wait_for_network'):
+            network_wait = prefs['wait_for_network']
+        if prefs.get('network_timeout'):
+            network_timeout = prefs['network_timeout']
+        if prefs.get('ignored_users'):
+            ignored_users = prefs['ignored_users']
 
     if args.boot:
         if os.listdir(boot_once_dir):
@@ -324,18 +330,19 @@ def main():
         logging.info('Boot processing complete')
 
     if args.login:
-        if os.listdir(login_every_dir):
-            process_items(login_every_dir)
-        if os.listdir(login_once_dir):
-            process_items(login_once_dir, once=True)
+        if console_user not in ignored_users:
+            if os.listdir(login_every_dir):
+                process_items(login_every_dir)
+            if os.listdir(login_once_dir):
+                process_items(login_once_dir, once=True)
+        else:
+            logging.info('Skipping login scripts for user %s', console_user)
 
     if args.on_demand:
         if os.listdir(on_demand_dir):
-            console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
-            current_user = os.environ['USER']
             if console_user not in ('root', 'loginwindow'):
+                current_user = os.environ['USER']
                 if console_user == current_user:
-                    logging.info('Running on-demand script(s)')
                     process_items(on_demand_dir)
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.', current_user)
@@ -347,12 +354,14 @@ def main():
             cleanup(cleanup_trigger)
 
     if args.login_every:
-        if os.listdir(login_every_dir):
-            process_items(login_every_dir)
+        if console_user not in ignored_users:
+            if os.listdir(login_every_dir):
+                process_items(login_every_dir)
 
     if args.login_once:
-        if os.listdir(login_once_dir):
-            process_items(login_once_dir, once=True)
+        if console_user not in ignored_users:
+            if os.listdir(login_once_dir):
+                process_items(login_once_dir, once=True)
 
     if args.cleanup:
         logging.info('Cleaning up on-demand directory.')
