@@ -294,6 +294,8 @@ def main():
     group.add_argument('--login-once', action='store_true')
     group.add_argument('--cleanup', action='store_true')
     group.add_argument('--version', action='store_true')
+    group.add_argument('--add-ignored-user')
+    group.add_argument('--remove-ignored-user')
     args = parser.parse_args()
 
     loginwindow = True
@@ -302,6 +304,10 @@ def main():
     network_timeout = 180
     ignored_users = []
     continue_firstboot = True
+    prefs = {}
+
+    if not os.path.exists(share_dir):
+        os.makedirs(share_dir)
 
     if os.path.exists(outset_preferences):
         prefs = FoundationPlist.readPlist(outset_preferences)
@@ -371,6 +377,18 @@ def main():
             for f in os.listdir(on_demand_dir):
                 cleanup(os.path.join(on_demand_dir, f))
         time.sleep(5)
+
+    if args.add_ignored_user:
+        if not prefs.get('ignored_users'):
+            prefs['ignored_users'] = []
+        prefs['ignored_users'].append(args.add_ignored_user)
+        FoundationPlist.writePlist(prefs, outset_preferences)
+
+    if args.remove_ignored_user:
+        if prefs.get('ignored_users'):
+            if args.remove_ignored_user in prefs['ignored_users']:
+                prefs['ignored_users'].remove(args.remove_ignored_user)
+                FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.version:
         print __version__
