@@ -291,6 +291,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
+    group.add_argument('--logout', action='store_true')
     group.add_argument('--on-demand', action='store_true')
     group.add_argument('--login-every', action='store_true')
     group.add_argument('--login-once', action='store_true')
