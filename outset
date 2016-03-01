@@ -39,6 +39,8 @@ from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 outset_dir = '/usr/local/outset'
 login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
+logout_every_dir = os.path.join(outset_dir, 'logout-every')
+logout_once_dir = os.path.join(outset_dir, 'logout-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
 boot_once_dir = os.path.join(outset_dir, 'boot-once')
 boot_every_dir = os.path.join(outset_dir, 'boot-every')
@@ -292,6 +294,8 @@ def main():
     group.add_argument('--on-demand', action='store_true')
     group.add_argument('--login-every', action='store_true')
     group.add_argument('--login-once', action='store_true')
+    group.add_argument('--logout-every', action='store_true')
+    group.add_argument('--logout-once', action='store_true')
     group.add_argument('--cleanup', action='store_true')
     group.add_argument('--version', action='store_true')
     group.add_argument('--add-ignored-user')
@@ -344,6 +348,15 @@ def main():
         else:
             logging.info('Skipping login scripts for user %s', console_user)
 
+    if args.logout:
+        if console_user not in ignored_users:
+            if os.listdir(logout_every_dir):
+                process_items(logout_every_dir)
+            if os.listdir(logout_once_dir):
+                process_items(logout_once_dir, once=True)
+        else:
+            logging.info('Skipping logout scripts for user %s', console_user)
+
     if args.on_demand:
         if os.listdir(on_demand_dir):
             if console_user not in ('root', 'loginwindow'):
@@ -368,6 +381,16 @@ def main():
         if console_user not in ignored_users:
             if os.listdir(login_once_dir):
                 process_items(login_once_dir, once=True)
+
+    if args.logout_every:
+        if console_user not in ignored_users:
+            if os.listdir(logout_every_dir):
+                process_items(logout_every_dir)
+
+    if args.logout_once:
+        if console_user not in ignored_users:
+            if os.listdir(logout_once_dir):
+                process_items(logout_once_dir, once=True)
 
     if args.cleanup:
         logging.info('Cleaning up on-demand directory.')
