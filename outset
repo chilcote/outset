@@ -354,6 +354,7 @@ def main():
         # Logout is really login window. Check both the last username and the last user state is 'loggedOut'
         current_loginwindow = FoundationPlist.readPlist(loginwindow_preferences)
         lastuser = current_loginwindow['lastUser']
+        console_user = current_loginwindow['lastUserName']
         if lastuser == 'loggedOut':
             if console_user not in ignored_users:
                 if os.listdir(logout_every_dir):
