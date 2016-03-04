@@ -362,7 +362,7 @@ def main():
             else:
                 logging.info('Skipping logout scripts for user %s', console_user)
         else:
-            logging.info('Skipping logout script because login state is %s', current_loginwindow)
+            logging.info('Skipping logout script because login state is %s and should be loggedOut', current_loginwindow['lastUser'])
 
     if args.on_demand:
         if os.listdir(on_demand_dir):
