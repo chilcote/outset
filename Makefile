@@ -12,7 +12,6 @@ PAYLOAD= \
 		pack-usr-local-outset-outset \
 		pack-usr-local-outset-FoundationPlist \
 		pack-usr-local-outset-share-com.chilcote.outset.plist \
-		pack-usr-local-outset-share-logout.sh \
 		pack-script-postinstall
 
 l_usr_local_outset: l_usr_local
