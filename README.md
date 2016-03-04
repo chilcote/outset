@@ -42,6 +42,8 @@ The `com.github.outset.logout.plist` launch agent runs any scripts you wish to b
 	/usr/local/outset/logout-once
 	/usr/local/outset/logout-every
 
+At logout, Outset will check to make sure there are, in fact, on users logged in before running anything. Keep in mind that any logout scripts you run will not have ~/ available as a user context, so if you want the last logged in user, you'll have to get the output of ``` defaults read /Library/Preferences/com.apple.loginwindow lastUserName ```
+
 The `com.github.outset.on-demand.plist` launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below, and then trigger the `on-demand` run by touching the file at `/private/tmp/.com.github.outset.ondemand.launchd`, i.e. with a postinstall script. `On-demand` scripts will be immediately removed by the `com.github.outset.cleanup.plist` launch daemon, so they will **not** run for subsequent logins:
 
 	/usr/local/outset/on-demand
