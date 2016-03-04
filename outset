@@ -48,6 +48,7 @@ share_dir = os.path.join(outset_dir, 'share')
 outset_preferences = os.path.join(share_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
 cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
+loginwindow_preferences = '/Library/Preferences/com.apple.loginwindow.plist'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -350,13 +351,18 @@ def main():
             logging.info('Skipping login scripts for user %s', console_user)
 
     if args.logout:
-        if console_user not in ignored_users:
-            if os.listdir(logout_every_dir):
-                process_items(logout_every_dir)
-            if os.listdir(logout_once_dir):
-                process_items(logout_once_dir, once=True)
+        # Logout is really login window. Check both the last username and the last user state is 'loggedOut'
+        current_loginwindow = FoundationPlist.readPlist(loginwindow_preferences)
+        if current_loginwindow['lastUser'] == 'loggedOut':
+            if console_user not in ignored_users:
+                if os.listdir(logout_every_dir):
+                    process_items(logout_every_dir)
+                if os.listdir(logout_once_dir):
+                    process_items(logout_once_dir, once=True)
+            else:
+                logging.info('Skipping logout scripts for user %s', console_user)
         else:
-            logging.info('Skipping logout scripts for user %s', console_user)
+            logging.info('Skipping logout script because login state is %s', current_loginwindow)
 
     if args.on_demand:
         if os.listdir(on_demand_dir):
