@@ -353,7 +353,8 @@ def main():
     if args.logout:
         # Logout is really login window. Check both the last username and the last user state is 'loggedOut'
         current_loginwindow = FoundationPlist.readPlist(loginwindow_preferences)
-        if current_loginwindow['lastUser'] == 'loggedOut':
+        lastuser = current_loginwindow['lastUser']
+        if lastuser == 'loggedOut':
             if console_user not in ignored_users:
                 if os.listdir(logout_every_dir):
                     process_items(logout_every_dir)
@@ -362,7 +363,7 @@ def main():
             else:
                 logging.info('Skipping logout scripts for user %s', console_user)
         else:
-            logging.info('Skipping logout script because login state is %s and should be loggedOut', current_loginwindow['lastUser'])
+            logging.info('Skipping logout script because login state is %s and should be loggedOut', lastuser)
 
     if args.on_demand:
         if os.listdir(on_demand_dir):
