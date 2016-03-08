@@ -294,8 +294,10 @@ def main():
     group.add_argument('--login-once', action='store_true')
     group.add_argument('--cleanup', action='store_true')
     group.add_argument('--version', action='store_true')
-    group.add_argument('--add-ignored-user')
-    group.add_argument('--remove-ignored-user')
+    group.add_argument('--add-ignored-user', action='append',
+            help='Add user to ignored list')
+    group.add_argument('--remove-ignored-user', action='append',
+            help='Remove user from ignored list')
     args = parser.parse_args()
 
     loginwindow = True
@@ -379,16 +381,19 @@ def main():
         time.sleep(5)
 
     if args.add_ignored_user:
+        users_to_add = args.add_ignored_user
         if not prefs.get('ignored_users'):
             prefs['ignored_users'] = []
-        prefs['ignored_users'].append(args.add_ignored_user)
+        prefs['ignored_users'].extend(users_to_add)
         FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.remove_ignored_user:
+        users_to_remove = args.remove_ignored_user
         if prefs.get('ignored_users'):
-            if args.remove_ignored_user in prefs['ignored_users']:
-                prefs['ignored_users'].remove(args.remove_ignored_user)
-                FoundationPlist.writePlist(prefs, outset_preferences)
+            for user in users_to_remove:
+                if user in prefs['ignored_users']:
+                    prefs['ignored_users'].remove(user)
+            FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.version:
         print __version__
