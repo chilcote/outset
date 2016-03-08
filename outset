@@ -39,6 +39,8 @@ from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 outset_dir = '/usr/local/outset'
 login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
+logout_every_dir = os.path.join(outset_dir, 'logout-every')
+logout_once_dir = os.path.join(outset_dir, 'logout-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
 boot_once_dir = os.path.join(outset_dir, 'boot-once')
 boot_every_dir = os.path.join(outset_dir, 'boot-every')
@@ -46,6 +48,7 @@ share_dir = os.path.join(outset_dir, 'share')
 outset_preferences = os.path.join(share_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
 cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
+loginwindow_preferences = '/Library/Preferences/com.apple.loginwindow.plist'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
@@ -289,9 +292,12 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--boot', action='store_true')
     group.add_argument('--login', action='store_true')
+    group.add_argument('--logout', action='store_true')
     group.add_argument('--on-demand', action='store_true')
     group.add_argument('--login-every', action='store_true')
     group.add_argument('--login-once', action='store_true')
+    group.add_argument('--logout-every', action='store_true')
+    group.add_argument('--logout-once', action='store_true')
     group.add_argument('--cleanup', action='store_true')
     group.add_argument('--version', action='store_true')
     group.add_argument('--add-ignored-user', action='append',
@@ -346,6 +352,22 @@ def main():
         else:
             logging.info('Skipping login scripts for user %s', console_user)
 
+    if args.logout:
+        # Logout is really login window. Check both the last username and the last user state is 'loggedOut'
+        current_loginwindow = FoundationPlist.readPlist(loginwindow_preferences)
+        lastuser = current_loginwindow['lastUser']
+        console_user = current_loginwindow['lastUserName']
+        if lastuser == 'loggedOut':
+            if console_user not in ignored_users:
+                if os.listdir(logout_every_dir):
+                    process_items(logout_every_dir)
+                if os.listdir(logout_once_dir):
+                    process_items(logout_once_dir, once=True)
+            else:
+                logging.info('Skipping logout scripts for user %s', console_user)
+        else:
+            logging.info('Skipping logout script because login state is %s and should be loggedOut', lastuser)
+
     if args.on_demand:
         if os.listdir(on_demand_dir):
             if console_user not in ('root', 'loginwindow'):
@@ -370,6 +392,16 @@ def main():
         if console_user not in ignored_users:
             if os.listdir(login_once_dir):
                 process_items(login_once_dir, once=True)
+
+    if args.logout_every:
+        if console_user not in ignored_users:
+            if os.listdir(logout_every_dir):
+                process_items(logout_every_dir)
+
+    if args.logout_once:
+        if console_user not in ignored_users:
+            if os.listdir(logout_once_dir):
+                process_items(logout_once_dir, once=True)
 
     if args.cleanup:
         logging.info('Cleaning up on-demand directory.')

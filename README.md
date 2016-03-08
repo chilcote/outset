@@ -19,11 +19,12 @@ For testing purposes, one could manually run the command from the same directory
 	sudo ./outset --boot
 	./outset --login
 
-`outset` is controlled by four launchd plists:
+`outset` is controlled by five launchd plists:
 
 	/Library/LaunchDaemons/com.github.outset.boot.plist
 	/Library/LaunchDaemons/com.github.outset.cleanup.plist
 	/Library/LaunchAgents/com.github.outset.login.plist
+	/Library/LaunchAgents/com.github.outset.logout.plist
 	/Library/LaunchAgents/com.github.outset.on-demand.plist
 
 The `com.github.outset.boot.plist` launch daemon runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in the `boot-every` directory will run at each boot. Scripts/packages in `boot-once` directory will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
@@ -35,6 +36,13 @@ The `com.github.outset.login.plist` launch agent runs any scripts you wish to be
 
 	/usr/local/outset/login-once
 	/usr/local/outset/login-every
+
+The `com.github.outset.logout.plist` launch agent runs any scripts you wish to be processed at user logout. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. `Logout-every` scripts will continue to be run at every login, while `logout-once` scripts will only be run once per user:
+
+	/usr/local/outset/logout-once
+	/usr/local/outset/logout-every
+
+At logout, Outset will check to make sure there are, in fact, on users logged in before running anything. Keep in mind that any logout scripts you run will not have ~/ available as a user context, so if you want the last logged in user, you'll have to get the output of ``` defaults read /Library/Preferences/com.apple.loginwindow lastUserName ```
 
 The `com.github.outset.on-demand.plist` launch agent runs any scripts you wish to be processed immediately, in the user context. You pass scripts and packages to the launchd job by placing them in the corresponding directory listed below, and then trigger the `on-demand` run by touching the file at `/private/tmp/.com.github.outset.ondemand.launchd`, i.e. with a postinstall script. `On-demand` scripts will be immediately removed by the `com.github.outset.cleanup.plist` launch daemon, so they will **not** run for subsequent logins:
 

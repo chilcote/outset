@@ -7,6 +7,7 @@ PAYLOAD= \
 		pack-Library-LaunchDaemons-com.github.outset.boot.plist \
 		pack-Library-LaunchDaemons-com.github.outset.cleanup.plist \
 		pack-Library-LaunchAgents-com.github.outset.login.plist \
+		pack-Library-LaunchAgents-com.github.outset.logout.plist \
 		pack-Library-LaunchAgents-com.github.outset.on-demand.plist \
 		pack-usr-local-outset-outset \
 		pack-usr-local-outset-FoundationPlist \
@@ -14,7 +15,7 @@ PAYLOAD= \
 		pack-script-postinstall
 
 l_usr_local_outset: l_usr_local
-	@sudo mkdir -p ${WORK_D}/usr/local/outset/{boot-once,boot-every,login-once,login-every,on-demand,share,FoundationPlist}
+	@sudo mkdir -p ${WORK_D}/usr/local/outset/{boot-once,boot-every,login-once,login-every,logout-once,logout-every,on-demand,share,FoundationPlist}
 	@sudo chown -R root:wheel ${WORK_D}/usr/local/outset
 	@sudo chmod -R 755 ${WORK_D}/usr/local/outset
 
