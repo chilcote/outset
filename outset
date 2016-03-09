@@ -37,11 +37,11 @@ from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
 
 outset_dir = '/usr/local/outset'
+boot_every_dir = os.path.join(outset_dir, 'boot-every')
+boot_once_dir = os.path.join(outset_dir, 'boot-once')
 login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
-boot_once_dir = os.path.join(outset_dir, 'boot-once')
-boot_every_dir = os.path.join(outset_dir, 'boot-every')
 share_dir = os.path.join(outset_dir, 'share')
 outset_preferences = os.path.join(share_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
@@ -308,9 +308,6 @@ def main():
     continue_firstboot = True
     prefs = {}
 
-    if not os.path.exists(share_dir):
-        os.makedirs(share_dir)
-
     if os.path.exists(outset_preferences):
         prefs = FoundationPlist.readPlist(outset_preferences)
         if prefs.get('wait_for_network'):
@@ -321,6 +318,18 @@ def main():
             ignored_users = prefs['ignored_users']
 
     if args.boot:
+        working_directories = [boot_every_dir,
+                               boot_once_dir,
+                               login_every_dir,
+                               login_once_dir,
+                               on_demand_dir,
+                               share_dir]
+
+        for directory in working_directories:
+            if not os.path.exists(directory):
+                logging.info('%s does not exist, creating now.', directory)
+                os.makedirs(directory)
+
         if os.listdir(boot_once_dir):
             if network_wait:
                 loginwindow = False
