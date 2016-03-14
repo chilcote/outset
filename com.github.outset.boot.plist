@@ -6,7 +6,7 @@
   <string>com.github.outset.boot</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/outset/outset</string>
+    <string>/opt/local/bin/outset/outset</string>
     <string>--boot</string>
   </array>
   <key>RunAtLoad</key>
