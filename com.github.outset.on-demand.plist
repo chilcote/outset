@@ -6,7 +6,7 @@
   <string>com.github.outset.on-demand</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/outset/outset</string>
+    <string>/opt/local/bin/outset/outset</string>
     <string>--on-demand</string>
   </array>
   <key>KeepAlive</key>
