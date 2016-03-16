@@ -32,6 +32,7 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 import time
 from stat import S_IXOTH, S_IWOTH
 from SystemConfiguration import SCDynamicStoreCopyConsoleUser
@@ -60,6 +61,9 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
                     level=logging.DEBUG,
                     filename=log_file)
+stdout_logging = logging.StreamHandler()
+stdout_logging.setFormatter(logging.Formatter())
+logging.getLogger().addHandler(stdout_logging)
 
 def network_up():
     '''Returns True if network is up'''
