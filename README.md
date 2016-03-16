@@ -1,23 +1,22 @@
-outset
+Outset
 ======
 
-This script automatically processes packages and scripts at first boot and/or each (subsequent) user login. 
+This script automatically processes packages, profiles, and/or scripts at boot, on demand, and/or login.
 
 Requirements
 ------------
-+ python 2.7  
++ python 2.7+
 + I've only tested on 10.9+. YMMV
-+ (and not explicitly required, but strongly recommended:)[The Luggage](https://github.com/unixorn/luggage)
 
 Usage
 -----
 
 The script is meant to be triggered by launchd so there is no interactive mode as such. The `--boot` argument is triggered by a LaunchDaemon and therefore will be run by root. The `--login` argument is triggered by a LaunchAgent, so it is running in the user context.  
 
-For testing purposes, one could manually run the command from the same directory as the outset script:
+For testing purposes, one could manually run the command:
 
-	sudo ./outset --boot
-	./outset --login
+	sudo /usr/local/bin/outset/outset --boot
+	/usr/local/bin/outset/outset --login
 
 `outset` is controlled by four launchd plists:
 
@@ -26,7 +25,7 @@ For testing purposes, one could manually run the command from the same directory
 	/Library/LaunchAgents/com.github.outset.login.plist
 	/Library/LaunchAgents/com.github.outset.on-demand.plist
 
-The `com.github.outset.boot.plist` launch daemon runs any scripts and packages you'd like to have processed at first or every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in the `boot-every` directory will run at each boot. Scripts/packages in `boot-once` directory will self-destruct after completion (this is for firstboot packages and configuration scripts that you only want to run once):
+The `com.github.outset.boot.plist` launch daemon runs any scripts and packages you'd like to have processed once or at every boot. You pass scripts and packages to the launchd job by placing them in the corresponding directories listed below. Scripts in the `boot-every` directory will run at each boot. Scripts/packages in `boot-once` directory will self-destruct after completion (this is useful for "firstboot" style packages and configuration scripts that you only want to run once):
 
 	/usr/local/outset/boot-once
 	/usr/local/outset/boot-every
@@ -54,44 +53,14 @@ Note: Make sure all scripts you use in the controlled directories listed above h
 
 Configuration
 -------------
-Download the [latest release](https://github.com/chilcote/outset/releases) or alternatively use [The Luggage](https://github.com/unixorn/luggage) or your packaging tool of choice to install the script, accompanying launchd plists, and any items you want processed. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
+Download the [latest release](https://github.com/chilcote/outset/releases) or alternatively use the included Makefile to create a pkg. You can use the resulting pkg installer in your [AutoDMG](https://github.com/MagerValp/AutoDMG) workflow.
 
-	sudo make pkg
+	make pkg
 
-You can also use The Luggage to package up some scripts to be run by `outset`. Here is an example Makefile that would package up some hypothetical scripts and packages to be installed at boot, every boot, each login, and first login:
+You can also use the included `custom-outset` files to package up some scripts to be run by `outset`. Replace the example scripts in the corresponding directories with your scripts, profiles, or packages, and the included Makefile will package up your files:
 
-	USE_PKGBUILD=1
-	include /usr/local/share/luggage/luggage.make
-	TITLE=outset_resources_sample
-	REVERSE_DOMAIN=com.github.outset
-	PAYLOAD= \
-			pack-usr-local-outset-boot-once-sample_pkg.dmg \
-			pack-usr-local-outset-boot-once-sample_pkg.pkg \
-			pack-usr-local-outset-boot-once-sample_script_firstboot.py \
-			pack-usr-local-outset-boot-every-sample_script_every.py \
-			pack-usr-local-outset-login-every-sample_script_every.py \
-			pack-usr-local-outset-login-once-sample_script_once.py \
-			pack-usr-local-outset-on-demand-sample_script_on-demand.py
-
-	l_usr_local_outset: l_usr_local
-		@sudo mkdir -p ${WORK_D}/usr/local/outset/{boot-once,boot-every,login-once,login-every,on-demand,share,FoundationPlist}
-		@sudo chown -R root:wheel ${WORK_D}/usr/local/outset
-		@sudo chmod -R 755 ${WORK_D}/usr/local/outset
-
-	pack-usr-local-outset-boot-once-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/boot-once
-
-	pack-usr-local-outset-boot-every-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/boot-every
-
-	pack-usr-local-outset-login-once-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-once
-
-	pack-usr-local-outset-login-every-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/login-every
-
-	pack-usr-local-outset-on-demand-%: % l_usr_local_outset
-		@sudo ${INSTALL} -m 755 -g wheel -o root "${<}" ${WORK_D}/usr/local/outset/on-demand
+	cd ./custom-outset
+	make pkg
 
 Credits
 -------
