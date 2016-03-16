@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 '''
-Run scripts and install pkgs or profiles at boot and/or login.
+This script automatically processes packages, profiles, and/or scripts at
+boot, on demand, and/or login.
 '''
 
 ##############################################################################
@@ -284,20 +285,29 @@ def main():
     '''Main method'''
 
     parser = argparse.ArgumentParser(description='This script automatically \
-            processes packages and scripts at first boot \
-            and/or each (subsequent) user login.')
+            processes packages, profiles, and/or scripts at boot, on demand,\
+            and/or login.')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--boot', action='store_true')
-    group.add_argument('--login', action='store_true')
-    group.add_argument('--on-demand', action='store_true')
-    group.add_argument('--login-every', action='store_true')
-    group.add_argument('--login-once', action='store_true')
-    group.add_argument('--cleanup', action='store_true')
-    group.add_argument('--version', action='store_true')
+    group.add_argument('--boot', action='store_true',
+                       help='Used by launchd for scheduled runs at boot')
+    group.add_argument('--login', action='store_true',
+                       help='Used by launchd for scheduled runs at login')
+    group.add_argument('--on-demand', action='store_true',
+                       help='Process scripts on demand')
+    group.add_argument('--login-every', action='store_true',
+                       help='Manually process scripts in login-every')
+    group.add_argument('--login-once', action='store_true',
+                       help='Manually process scripts in login-once')
+    group.add_argument('--cleanup', action='store_true',
+                       help='Used by launchd to clean up on-demand dir')
+    group.add_argument('--version', action='store_true',
+                       help='Show version number')
     group.add_argument('--add-ignored-user', action='append',
-            help='Add user to ignored list')
+                       metavar='username',
+                       help='Add user to ignored list')
     group.add_argument('--remove-ignored-user', action='append',
-            help='Remove user from ignored list')
+                       metavar='username',
+                       help='Remove user from ignored list')
     args = parser.parse_args()
 
     loginwindow = True
