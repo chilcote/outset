@@ -415,12 +415,13 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to add users to ignored_users')
             exit(1)
-        users_to_add = args.add_ignored_user
-        users_to_add.extend(ignored_users)
+        users_to_add = [i for i in args.add_ignored_user if i != '']
         if users_to_add:
-            users_to_ignore = list(set(users_to_add))
-        prefs['ignored_users'] = users_to_ignore
-        FoundationPlist.writePlist(prefs, outset_preferences)
+            users_to_add.extend(ignored_users)
+            users_to_ignore = list(set(users_to_add)) if users_to_add else None
+            if users_to_ignore:
+                prefs['ignored_users'] = users_to_ignore
+                FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.remove_ignored_user:
         if os.getuid() != 0:
