@@ -316,7 +316,7 @@ def main():
 
     loginwindow = True
     console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
-    network_wait = True
+    network_wait = False
     network_timeout = 180
     ignored_users = []
     continue_firstboot = True
@@ -324,12 +324,9 @@ def main():
 
     if os.path.exists(outset_preferences):
         prefs = FoundationPlist.readPlist(outset_preferences)
-        if prefs.get('wait_for_network'):
-            network_wait = prefs['wait_for_network']
-        if prefs.get('network_timeout'):
-            network_timeout = prefs['network_timeout']
-        if prefs.get('ignored_users'):
-            ignored_users = prefs['ignored_users']
+        network_wait = prefs.get('wait_for_network', False)
+        network_timeout = prefs.get('network_timeout', 180)
+        ignored_users = prefs.get('ignored_users', [])
 
     if args.boot:
         working_directories = [boot_every_dir,
