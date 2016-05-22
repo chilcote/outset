@@ -230,7 +230,7 @@ def run_script(pathname):
         return False
     return True
 
-def process_items(path, delete_items=False, once=False):
+def process_items(path, delete_items=False, once=False, override={}):
     '''Processes scripts/packages to run'''
 
     if not os.path.exists(path):
@@ -278,6 +278,11 @@ def process_items(path, delete_items=False, once=False):
             if script not in d:
                 if run_script(script):
                     d[script] = datetime.datetime.now()
+            else:
+                if script in override:
+                    if override[script] > d[script]:
+                        if run_script(script):
+                            d[script] = datetime.datetime.now()
         else:
             task = run_script(script)
         if delete_items: cleanup(script)
@@ -312,6 +317,12 @@ def main():
     group.add_argument('--remove-ignored-user', action='append',
                        metavar='username',
                        help='Remove user from ignored list')
+    group.add_argument('--add-override', action='append',
+                       metavar='scripts',
+                       help='Add scripts to override list')
+    group.add_argument('--remove-override', action='append',
+                       metavar='scripts',
+                       help='Remove scripts from override list')
     args = parser.parse_args()
 
     loginwindow = True
@@ -319,6 +330,7 @@ def main():
     network_wait = True
     network_timeout = 180
     ignored_users = []
+    override_login_once = {}
     continue_firstboot = True
     prefs = {}
 
@@ -327,6 +339,7 @@ def main():
         network_wait = prefs.get('wait_for_network', True)
         network_timeout = prefs.get('network_timeout', 180)
         ignored_users = prefs.get('ignored_users', [])
+        override_login_once = prefs.get('override_login_once', {})
 
     if args.boot:
         working_directories = [boot_every_dir,
@@ -361,6 +374,7 @@ def main():
             prefs['wait_for_network'] = network_wait
             prefs['network_timeout'] = network_timeout
             prefs['ignored_users'] = ignored_users
+            prefs['override_login_once'] = override_login_once
             FoundationPlist.writePlist(prefs, outset_preferences)
 
         logging.info('Boot processing complete')
@@ -368,7 +382,7 @@ def main():
     if args.login:
         if console_user not in ignored_users:
             if os.listdir(login_once_dir):
-                process_items(login_once_dir, once=True)
+                process_items(login_once_dir, once=True, override=override_login_once)
             if os.listdir(login_every_dir):
                 process_items(login_every_dir)
         else:
@@ -429,6 +443,31 @@ def main():
             for user in users_to_remove:
                 if user in prefs['ignored_users']:
                     prefs['ignored_users'].remove(user)
+            FoundationPlist.writePlist(prefs, outset_preferences)
+
+    if args.add_override:
+        if os.getuid() != 0:
+            logging.error('Must be root to add scripts to override_login_once')
+            exit(1)
+        scripts_to_add = [i for i in args.add_override if i != '']
+        if scripts_to_add:
+            override_scripts = {}
+            for script in scripts_to_add:
+                script = os.path.join(login_once_dir, script)
+                override_scripts[script] = datetime.datetime.now()
+            prefs['override_login_once'].update(override_scripts)
+            FoundationPlist.writePlist(prefs, outset_preferences)
+
+    if args.remove_override:
+        if os.getuid() != 0:
+            logging.error('Must be root to remove scripts from override_login_once')
+            exit(1)
+        scripts_to_remove = args.remove_override
+        if prefs.get('override_login_once'):
+            for script in scripts_to_remove:
+                script = os.path.join(login_once_dir, script)
+                if script in prefs['override_login_once']:
+                    del prefs['override_login_once'][script]
             FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.version:
