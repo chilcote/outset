@@ -455,7 +455,10 @@ def main():
             for script in scripts_to_add:
                 script = os.path.join(login_once_dir, script)
                 override_scripts[script] = datetime.datetime.now()
-            prefs['override_login_once'].update(override_scripts)
+            if 'override_login_once' in prefs.keys():
+                prefs['override_login_once'].update(override_scripts)
+            else:
+                prefs['override_login_once'] = override_scripts
             FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.remove_override:
