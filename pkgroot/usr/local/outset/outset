@@ -51,6 +51,7 @@ cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
+    run_once_plist = os.path.expanduser('~/Library/Preferences/com.github.outset.once.plist')
 else:
     if not os.path.exists(os.path.expanduser('~/Library/Logs')):
         os.makedirs(os.path.expanduser('~/Library/Logs'))
@@ -65,6 +66,7 @@ stdout_logging = logging.StreamHandler()
 stdout_logging.setFormatter(logging.Formatter())
 logging.getLogger().addHandler(stdout_logging)
 
+
 def network_up():
     '''Returns True if network is up'''
     cmd = ['/sbin/ifconfig', '-a', 'inet']
@@ -77,6 +79,7 @@ def network_up():
                 return True
     return False
 
+
 def wait_for_network(timeout):
     '''Waits for a valid IP before continuing'''
     for x in xrange(timeout):
@@ -85,6 +88,7 @@ def wait_for_network(timeout):
         else:
             logging.info('Waiting for network')
             time.sleep(10)
+
 
 def disable_loginwindow():
     '''Disables the loginwindow process'''
@@ -95,6 +99,7 @@ def disable_loginwindow():
                             stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
 
+
 def enable_loginwindow():
     '''Enables the loginwindow process'''
     logging.info('Enabling loginwindow process')
@@ -104,6 +109,7 @@ def enable_loginwindow():
                             stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
 
+
 def get_hardwaremodel():
     '''Returns the hardware model of the Mac'''
     cmd = ['/usr/sbin/sysctl', '-n', 'hw.model']
@@ -111,6 +117,7 @@ def get_hardwaremodel():
                             stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out.strip()
+
 
 def get_serialnumber():
     '''Returns the serial number of the Mac'''
@@ -121,6 +128,7 @@ def get_serialnumber():
     (out, err) = proc.communicate()
     return out.strip()
 
+
 def get_buildversion():
     '''Returns the os build version of the Mac'''
     cmd = ['/usr/sbin/sysctl', '-n', 'kern.osversion']
@@ -129,9 +137,11 @@ def get_buildversion():
     (out, err) = proc.communicate()
     return out.strip()
 
+
 def get_osversion():
     '''Returns the os x version of this Mac'''
     return platform.mac_ver()[0]
+
 
 def sys_report():
     '''Logs system information to log file'''
@@ -140,6 +150,7 @@ def sys_report():
     logging.debug('OS: %s', get_osversion())
     logging.debug('Build: %s', get_buildversion())
 
+
 def cleanup(pathname):
     '''Deletes given script'''
     try:
@@ -147,15 +158,18 @@ def cleanup(pathname):
     except:
         shutil.rmtree(pathname)
 
+
 def mount_dmg(dmg):
     '''Attaches dmg'''
     dmg_path = os.path.join(dmg)
-    cmd = ['hdiutil', 'attach', '-nobrowse', '-noverify', '-noautoopen', dmg_path]
+    cmd = ['hdiutil', 'attach', '-nobrowse', '-noverify', '-noautoopen',
+           dmg_path]
     logging.info('Attaching %s', dmg_path)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
     return out.split('\n')[-2].split('\t')[-1]
+
 
 def detach_dmg(dmg_mount):
     '''Detaches dmg'''
@@ -166,6 +180,7 @@ def detach_dmg(dmg_mount):
     (out, err) = proc.communicate()
     if err:
         logging.error('Unable to detach %s: %s', dmg_mount, err)
+
 
 def check_perms(pathname):
     mode = os.stat(pathname).st_mode
@@ -178,6 +193,7 @@ def check_perms(pathname):
             return True
     return False
 
+
 def install_package(pkg):
     '''Installs pkg onto boot drive'''
     if pkg.lower().endswith('dmg'):
@@ -189,7 +205,7 @@ def install_package(pkg):
         dmg_mount = False
         pkg_to_install = pkg
     logging.info('Installing %s', pkg_to_install)
-    cmd = ['/usr/sbin/installer', '-pkg', pkg_to_install, '-target', '/',]
+    cmd = ['/usr/sbin/installer', '-pkg', pkg_to_install, '-target', '/', ]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
@@ -199,11 +215,13 @@ def install_package(pkg):
         time.sleep(5)
         detach_dmg(dmg_mount)
 
+
 def install_profile(pathname):
     '''Install mobileconfig located at given pathname'''
     cmd = ['/usr/bin/profiles', '-IF', pathname]
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         logging.info('Installing profile %s', pathname)
         (out, err) = proc.communicate()
         if err:
@@ -214,14 +232,18 @@ def install_profile(pathname):
         return False
     return True
 
+
 def run_script(pathname):
     '''Runs script located at given pathname'''
     try:
-        proc = subprocess.Popen(pathname, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(pathname, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         logging.info('Processing %s', pathname)
         (out, err) = proc.communicate()
         if err and proc.returncode == 0:
-            logging.info('Output from %s on stderr but it still ran successfully: %s', pathname, err)
+            logging.info(
+                'Output from %s on stderr but it still ran successfully: %s',
+                pathname, err)
         elif proc.returncode > 0:
             logging.error('Failure processing %s: %s', pathname, err)
             return False
@@ -229,6 +251,7 @@ def run_script(pathname):
         logging.error('Failure processing %s: %s', pathname, err)
         return False
     return True
+
 
 def process_items(path, delete_items=False, once=False):
     '''Processes scripts/packages to run'''
@@ -262,7 +285,8 @@ def process_items(path, delete_items=False, once=False):
 
     for package in packages:
         install_package(package)
-        if delete_items: cleanup(package)
+        if delete_items:
+            cleanup(package)
 
     for profile in profiles:
         if once:
@@ -271,7 +295,8 @@ def process_items(path, delete_items=False, once=False):
                     d[profile] = datetime.datetime.now()
         else:
             task = install_profile(profile)
-        if delete_items: cleanup(profile)
+        if delete_items:
+            cleanup(profile)
 
     for script in scripts:
         if once:
@@ -280,10 +305,12 @@ def process_items(path, delete_items=False, once=False):
                     d[script] = datetime.datetime.now()
         else:
             task = run_script(script)
-        if delete_items: cleanup(script)
+        if delete_items:
+            cleanup(script)
 
     if d:
         FoundationPlist.writePlist(d, run_once_plist)
+
 
 def main():
     '''Main method'''
@@ -383,7 +410,8 @@ def main():
                 else:
                     logging.info('User %s is not the current console user. Skipping on-demand run.', current_user)
             else:
-                logging.info('No current user session. Skipping on-demand run.')
+                logging.info(
+                    'No current user session. Skipping on-demand run.')
         open(cleanup_trigger, 'w').close()
         time.sleep(0.5)
         if os.path.exists(cleanup_trigger):
