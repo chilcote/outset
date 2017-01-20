@@ -1,0 +1,6 @@
+.DS_Store
+sample*
+*.pkg
+*.dmg
+*.pyc
+outset.wiki

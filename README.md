@@ -11,25 +11,29 @@ Requirements
 Usage
 -----
 
-    usage: outset [-h]
-                  (--boot | --login | --on-demand | --login-every | --login-once | --cleanup | --version | --add-ignored-user username | --remove-ignored-user username)
+	usage: outset [-h]
+				(--boot | --login | --on-demand | --login-every | --login-once | --cleanup | --version | --add-ignored-user username | --remove-ignored-user username | --add-override scripts | --remove-override scripts)
 
-    This script automatically processes packages, profiles, and/or scripts at
-    boot, on demand, and/or login.
+	This script automatically processes packages, profiles, and/or scripts at
+	boot, on demand, and/or login.
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      --boot                Used by launchd for scheduled runs at boot
-      --login               Used by launchd for scheduled runs at login
-      --on-demand           Process scripts on demand
-      --login-every         Manually process scripts in login-every
-      --login-once          Manually process scripts in login-once
-      --cleanup             Used by launchd to clean up on-demand dir
-      --version             Show version number
-      --add-ignored-user username
-                            Add user to ignored list
-      --remove-ignored-user username
-                            Remove user from ignored list
+	optional arguments:
+	-h, --help            show this help message and exit
+	--boot                Used by launchd for scheduled runs at boot
+	--login               Used by launchd for scheduled runs at login
+	--on-demand           Process scripts on demand
+	--login-every         Manually process scripts in login-every
+	--login-once          Manually process scripts in login-once
+	--cleanup             Used by launchd to clean up on-demand dir
+	--version             Show version number
+	--add-ignored-user username
+							Add user to ignored list
+	--remove-ignored-user username
+							Remove user from ignored list
+	--add-override scripts
+							Add scripts to override list
+	--remove-override scripts
+							Remove scripts from override list
 
 See the [wiki](https://github.com/chilcote/outset/wiki) for info on how to use Outset.
 

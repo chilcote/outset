@@ -1,5 +1,5 @@
 PKGTITLE="outset"
-PKGVERSION="2.0.3"
+PKGVERSION="2.0.4"
 PKGID=com.github.outset
 PROJECT="outset"
 
