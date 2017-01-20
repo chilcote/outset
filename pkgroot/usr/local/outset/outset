@@ -51,6 +51,7 @@ cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
+    run_once_plist = os.path.expanduser('~/Library/Preferences/com.github.outset.once.plist')
 else:
     if not os.path.exists(os.path.expanduser('~/Library/Logs')):
         os.makedirs(os.path.expanduser('~/Library/Logs'))
