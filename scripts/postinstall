@@ -5,6 +5,7 @@
 
 /bin/launchctl load /Library/LaunchDaemons/com.github.outset.boot.plist
 /bin/launchctl load /Library/LaunchDaemons/com.github.outset.cleanup.plist
+/bin/launchctl load /Library/LaunchDaemons/com.github.outset.login-privileged.plist
 
 user=$(/usr/bin/stat -f '%u' /dev/console)
 [[ -z "$user" ]] && exit 0

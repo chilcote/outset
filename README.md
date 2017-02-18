@@ -12,7 +12,7 @@ Usage
 -----
 
 	usage: outset [-h]
-				(--boot | --login | --on-demand | --login-every | --login-once | --cleanup | --version | --add-ignored-user username | --remove-ignored-user username | --add-override scripts | --remove-override scripts)
+				(--boot | --login | --login-privileged | --on-demand | --login-every | --login-once | --cleanup | --version | --add-ignored-user username | --remove-ignored-user username | --add-override scripts | --remove-override scripts)
 
 	This script automatically processes packages, profiles, and/or scripts at
 	boot, on demand, and/or login.
@@ -21,6 +21,7 @@ Usage
 	-h, --help            show this help message and exit
 	--boot                Used by launchd for scheduled runs at boot
 	--login               Used by launchd for scheduled runs at login
+	--login-privileged    Used by launchd for scheduled privileged runs at login
 	--on-demand           Process scripts on demand
 	--login-every         Manually process scripts in login-every
 	--login-once          Manually process scripts in login-once

@@ -22,7 +22,7 @@ boot, on demand, and/or login.
 ##############################################################################
 
 __author__ = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '2.0.4'
+__version__ = '2.0.5'
 
 import argparse
 import datetime
@@ -43,14 +43,20 @@ boot_every_dir = os.path.join(outset_dir, 'boot-every')
 boot_once_dir = os.path.join(outset_dir, 'boot-once')
 login_every_dir = os.path.join(outset_dir, 'login-every')
 login_once_dir = os.path.join(outset_dir, 'login-once')
+login_privileged_every_dir = os.path.join(outset_dir, 'login-privileged-every')
+login_privileged_once_dir = os.path.join(outset_dir, 'login-privileged-once')
 on_demand_dir = os.path.join(outset_dir, 'on-demand')
 share_dir = os.path.join(outset_dir, 'share')
 outset_preferences = os.path.join(share_dir, 'com.chilcote.outset.plist')
 on_demand_trigger = '/private/tmp/.com.github.outset.ondemand.launchd'
+login_privileged_trigger = '/private/tmp/.com.github.outset.login-privileged.launchd'
 cleanup_trigger = '/private/tmp/.com.github.outset.cleanup.launchd'
 
 if os.geteuid() == 0:
     log_file = '/var/log/outset.log'
+    console_uid = SCDynamicStoreCopyConsoleUser(None, None, None)[1]
+    run_once_plist = os.path.join('/usr/local/outset/share',
+            'com.github.outset.once.' + str(console_uid) + '.plist')
 else:
     if not os.path.exists(os.path.expanduser('~/Library/Logs')):
         os.makedirs(os.path.expanduser('~/Library/Logs'))
@@ -195,9 +201,11 @@ def install_package(pkg):
     (out, err) = proc.communicate()
     if err:
         logging.info('Failure installing %s: %s', pkg_to_install, err)
+        return False
     if dmg_mount:
         time.sleep(5)
         detach_dmg(dmg_mount)
+    return True
 
 def install_profile(pathname):
     '''Install mobileconfig located at given pathname'''
@@ -264,7 +272,17 @@ def process_items(path, delete_items=False, once=False, override={}):
             d = {}
 
     for package in packages:
-        install_package(package)
+        if once:
+            if package not in d:
+                if install_package(package):
+                    d[package] = datetime.datetime.now()
+            else:
+                if package in override:
+                    if override[package] > d[package]:
+                        if install_package(package):
+                            d[package] = datetime.datetime.now()
+        else:
+            task = install_package(package)
         if delete_items: cleanup(package)
 
     for profile in profiles:
@@ -272,6 +290,11 @@ def process_items(path, delete_items=False, once=False, override={}):
             if profile not in d:
                 if install_profile(profile):
                     d[profile] = datetime.datetime.now()
+            else:
+                if profile in override:
+                    if override[profile] > d[profile]:
+                        if install_profile(profile):
+                            d[profile] = datetime.datetime.now()
         else:
             task = install_profile(profile)
         if delete_items: cleanup(profile)
@@ -304,6 +327,8 @@ def main():
                        help='Used by launchd for scheduled runs at boot')
     group.add_argument('--login', action='store_true',
                        help='Used by launchd for scheduled runs at login')
+    group.add_argument('--login-privileged', action='store_true',
+                       help='Used by launchd for scheduled privileged runs at login')
     group.add_argument('--on-demand', action='store_true',
                        help='Process scripts on demand')
     group.add_argument('--login-every', action='store_true',
@@ -349,6 +374,8 @@ def main():
                                boot_once_dir,
                                login_every_dir,
                                login_once_dir,
+                               login_privileged_every_dir,
+                               login_privileged_once_dir,
                                on_demand_dir,
                                share_dir]
 
@@ -388,6 +415,20 @@ def main():
                 process_items(login_once_dir, once=True, override=override_login_once)
             if os.listdir(login_every_dir):
                 process_items(login_every_dir)
+            if os.listdir(login_privileged_once_dir) or os.listdir(login_privileged_every_dir):
+                open(login_privileged_trigger, 'a').close()
+        else:
+            logging.info('Skipping login scripts for user %s', console_user)
+
+    if args.login_privileged:
+        if os.path.exists(login_privileged_trigger):
+            cleanup(login_privileged_trigger)
+
+        if console_user not in ignored_users:
+            if os.listdir(login_privileged_once_dir):
+                process_items(login_privileged_once_dir, once=True, override=override_login_once)
+            if os.listdir(login_privileged_every_dir):
+                process_items(login_privileged_every_dir)
         else:
             logging.info('Skipping login scripts for user %s', console_user)
 
@@ -452,16 +493,16 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to add scripts to override_login_once')
             exit(1)
-        scripts_to_add = [i for i in args.add_override if i != '']
-        if scripts_to_add:
-            override_scripts = {}
-            for script in scripts_to_add:
-                script = os.path.join(login_once_dir, script)
-                override_scripts[script] = datetime.datetime.now()
+        overrides_to_add = [i for i in args.add_override if i != '']
+        if overrides_to_add:
+            override_items = {}
+            for override in overrides_to_add:
+                override = os.path.join(login_once_dir, override)
+                override_items[override] = datetime.datetime.now()
             if 'override_login_once' in prefs.keys():
-                prefs['override_login_once'].update(override_scripts)
+                prefs['override_login_once'].update(override_items)
             else:
-                prefs['override_login_once'] = override_scripts
+                prefs['override_login_once'] = override_items
             FoundationPlist.writePlist(prefs, outset_preferences)
 
     if args.remove_override:
