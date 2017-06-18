@@ -36,6 +36,8 @@ import sys
 import time
 from stat import S_IXOTH, S_IWOTH
 from SystemConfiguration import SCDynamicStoreCopyConsoleUser
+from distutils.version import StrictVersion as version
+from platform import mac_ver
 
 
 outset_dir = '/usr/local/outset'
@@ -209,7 +211,12 @@ def install_package(pkg):
 
 def install_profile(pathname):
     '''Install mobileconfig located at given pathname'''
-    cmd = ['/usr/bin/profiles', '-IF', pathname]
+    # profiles has new verbs in 10.13.
+    if version(mac_ver()[0]) >= version('10.13'):
+        cmd = ['/usr/bin/profiles', 'install', '-path=%s' % pathname]
+    else:
+        cmd = ['/usr/bin/profiles', '-IF', pathname]
+
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logging.info('Installing profile %s', pathname)
