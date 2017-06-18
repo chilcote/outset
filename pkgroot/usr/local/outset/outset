@@ -254,6 +254,8 @@ def process_items(path, delete_items=False, once=False, override={}):
     for dirpath, _, files in os.walk(path):
         items_to_process.extend(os.path.join(dirpath, f) for f in files)
 
+    items_to_process = sorted(items_to_process, key=lambda file: (os.path.dirname(file), os.path.basename(file)))
+
     for pathname in items_to_process:
         if check_perms(pathname):
             if pathname.lower().endswith(('pkg', 'mpkg', 'dmg')):
