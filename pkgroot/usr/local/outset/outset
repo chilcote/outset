@@ -22,7 +22,7 @@ boot, on demand, and/or login.
 ##############################################################################
 
 __author__ = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '2.0.5'
+__version__ = '2.0.6'
 
 import argparse
 import datetime
