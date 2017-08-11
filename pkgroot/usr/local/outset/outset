@@ -479,6 +479,11 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to add users to ignored_users')
             exit(1)
+
+        if not os.path.exists(share_dir):
+            logging.info('%s does not exist, creating now.', share_dir)
+            os.makedirs(share_dir)
+
         users_to_add = [i for i in args.add_ignored_user if i != '']
         if users_to_add:
             users_to_add.extend(ignored_users)
@@ -491,6 +496,7 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to remove users from ignored_users')
             exit(1)
+
         users_to_remove = args.remove_ignored_user
         if prefs.get('ignored_users'):
             for user in users_to_remove:
@@ -502,6 +508,11 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to add scripts to override_login_once')
             exit(1)
+
+        if not os.path.exists(share_dir):
+            logging.info('%s does not exist, creating now.', share_dir)
+            os.makedirs(share_dir)
+
         overrides_to_add = [i for i in args.add_override if i != '']
         if overrides_to_add:
             override_items = {}
@@ -518,6 +529,7 @@ def main():
         if os.getuid() != 0:
             logging.error('Must be root to remove scripts from override_login_once')
             exit(1)
+
         scripts_to_remove = args.remove_override
         if prefs.get('override_login_once'):
             for script in scripts_to_remove:
