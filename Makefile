@@ -16,7 +16,9 @@ clean:
 
 ##  pkg - Create a package using pkgbuild
 pkg: clean
-	pkgbuild --root pkgroot --scripts scripts --identifier ${PKGID} --version ${PKGVERSION} --ownership recommended ./${PKGTITLE}-${PKGVERSION}.pkg
+	pkgbuild --root pkgroot --scripts scripts --identifier ${PKGID} --version ${PKGVERSION} --ownership recommended ./${PKGTITLE}-${PKGVERSION}.component.pkg
+	productbuild --identifier ${PKGID}.${PKGVERSION} --package ./${PKGTITLE}-${PKGVERSION}.component.pkg ./${PKGTITLE}-${PKGVERSION}.pkg
+	rm -f ./${PKGTITLE}-${PKGVERSION}.component.pkg
 
 ##  dmg - Wrap the package inside a dmg
 dmg: pkg
