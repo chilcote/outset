@@ -6,6 +6,7 @@
   <string>com.github.outset.on-demand</string>
   <key>ProgramArguments</key>
   <array>
+    <string>/usr/bin/python</string>
     <string>/usr/local/outset/outset</string>
     <string>--on-demand</string>
   </array>

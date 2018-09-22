@@ -6,6 +6,7 @@
   <string>com.github.outset.login</string>
   <key>ProgramArguments</key>
   <array>
+    <string>/usr/bin/python</string>
     <string>/usr/local/outset/outset</string>
     <string>--login</string>
   </array>
