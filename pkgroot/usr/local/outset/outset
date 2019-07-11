@@ -33,6 +33,7 @@ import shutil
 import subprocess
 import sys
 import time
+import warnings
 from distutils.version import StrictVersion as version
 from platform import mac_ver
 from stat import S_IWOTH, S_IXOTH
@@ -46,6 +47,9 @@ else:
 
 __author__ = "Joseph Chilcote (chilcote@gmail.com)"
 __version__ = "2.1.0"
+
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
 
 outset_dir = "/usr/local/outset"
 boot_every_dir = os.path.join(outset_dir, "boot-every")
