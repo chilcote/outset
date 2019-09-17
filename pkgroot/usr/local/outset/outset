@@ -22,7 +22,7 @@ boot, on demand, and/or login.
 ##############################################################################
 
 __author__ = 'Joseph Chilcote (chilcote@gmail.com)'
-__version__ = '2.0.6'
+__version__ = '2.0.7'
 
 import argparse
 import datetime
@@ -420,14 +420,16 @@ def main():
 
     if args.login:
         if console_user not in ignored_users:
-            if os.listdir(login_once_dir):
-                process_items(login_once_dir, once=True, override=override_login_once)
-            if os.listdir(login_every_dir):
-                process_items(login_every_dir)
-            if os.listdir(login_privileged_once_dir) or os.listdir(login_privileged_every_dir):
-                open(login_privileged_trigger, 'a').close()
-        else:
-            logging.info('Skipping login scripts for user %s', console_user)
+			if os.listdir(login_once_dir):
+				process_items(login_once_dir, once=True, override=override_login_once)
+			current_user = os.environ['USER']
+			if console_user == current_user:
+				if os.listdir(login_every_dir):
+					process_items(login_every_dir)
+			if os.listdir(login_privileged_once_dir) or os.listdir(login_privileged_every_dir):
+				open(login_privileged_trigger, 'a').close()
+			else:
+				logging.info('Skipping login scripts for user %s', console_user)
 
     if args.login_privileged:
         if os.path.exists(login_privileged_trigger):
