@@ -21,14 +21,14 @@ boot, on demand, and/or login.
 #  under the License.
 ##############################################################################
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import datetime
 import logging
 import os
 import platform
+import pwd
 import shutil
 import subprocess
 import sys
@@ -37,8 +37,6 @@ import warnings
 from distutils.version import StrictVersion as version
 from platform import mac_ver
 from stat import S_IWOTH, S_IXOTH
-
-from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
 if sys.version_info > (3, 0):
     import plistlib as FoundationPlist
@@ -67,7 +65,7 @@ cleanup_trigger = "/private/tmp/.com.github.outset.cleanup.launchd"
 
 if os.geteuid() == 0:
     log_file = "/var/log/outset.log"
-    console_uid = SCDynamicStoreCopyConsoleUser(None, None, None)[1]
+    console_uid = os.getuid()
     run_once_plist = os.path.join(
         "/usr/local/outset/share",
         "com.github.outset.once." + str(console_uid) + ".plist",
@@ -439,7 +437,7 @@ def main():
     args = parser.parse_args()
 
     loginwindow = True
-    console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
+    console_user = pwd.getpwuid(os.getuid())[0]
     network_wait = True
     network_timeout = 180
     ignored_users = []
