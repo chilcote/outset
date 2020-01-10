@@ -7,9 +7,9 @@
 /bin/launchctl load /Library/LaunchDaemons/com.github.outset.cleanup.plist
 /bin/launchctl load /Library/LaunchDaemons/com.github.outset.login-privileged.plist
 
-user=$(/usr/bin/stat -f '%u' /dev/console)
+user=$(/bin/echo "show State:/Users/ConsoleUser" | /usr/sbin/scutil | /usr/bin/awk '/Name :/&&!/loginwindow/{print $3}')
 [[ -z "$user" ]] && exit 0
-/bin/launchctl asuser ${user} /bin/launchctl load /Library/LaunchAgents/com.github.outset.login.plist
-/bin/launchctl asuser ${user} /bin/launchctl load /Library/LaunchAgents/com.github.outset.on-demand.plist
+/bin/launchctl asuser "$user" /bin/launchctl load /Library/LaunchAgents/com.github.outset.login.plist
+/bin/launchctl asuser "$user" /bin/launchctl load /Library/LaunchAgents/com.github.outset.on-demand.plist
 
 exit 0
