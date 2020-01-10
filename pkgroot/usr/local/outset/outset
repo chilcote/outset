@@ -145,13 +145,11 @@ def get_hardwaremodel():
 
 def get_serialnumber():
     """Returns the serial number of the Mac"""
-    cmd = "/usr/sbin/ioreg -c \"IOPlatformExpertDevice\" | awk -F '\"' \
-                                    '/IOPlatformSerialNumber/ {print $4}'"
-    proc = subprocess.Popen(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    (out, err) = proc.communicate()
-    return out.strip()
+    out = subprocess.check_output(
+        ["/usr/sbin/ioreg", "-c", "IOPlatformExpertDevice"]
+    ).decode()
+    serial_line = [x for x in out.splitlines() if "IOPlatformSerialNumber" in x][0]
+    return serial_line.split()[-1].strip('"')
 
 
 def get_buildversion():
