@@ -21,14 +21,14 @@ boot, on demand, and/or login.
 #  under the License.
 ##############################################################################
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import datetime
 import logging
 import os
 import platform
+import pwd
 import shutil
 import subprocess
 import sys
@@ -37,8 +37,6 @@ import warnings
 from distutils.version import StrictVersion as version
 from platform import mac_ver
 from stat import S_IWOTH, S_IXOTH
-
-from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
 if sys.version_info > (3, 0):
     import plistlib as FoundationPlist
@@ -67,7 +65,7 @@ cleanup_trigger = "/private/tmp/.com.github.outset.cleanup.launchd"
 
 if os.geteuid() == 0:
     log_file = "/var/log/outset.log"
-    console_uid = SCDynamicStoreCopyConsoleUser(None, None, None)[1]
+    console_uid = os.getuid()
     run_once_plist = os.path.join(
         "/usr/local/outset/share",
         "com.github.outset.once." + str(console_uid) + ".plist",
@@ -147,13 +145,11 @@ def get_hardwaremodel():
 
 def get_serialnumber():
     """Returns the serial number of the Mac"""
-    cmd = "/usr/sbin/ioreg -c \"IOPlatformExpertDevice\" | awk -F '\"' \
-                                    '/IOPlatformSerialNumber/ {print $4}'"
-    proc = subprocess.Popen(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    (out, err) = proc.communicate()
-    return out.strip()
+    out = subprocess.check_output(
+        ["/usr/sbin/ioreg", "-c", "IOPlatformExpertDevice"]
+    ).decode()
+    serial_line = [x for x in out.splitlines() if "IOPlatformSerialNumber" in x][0]
+    return serial_line.split()[-1].strip('"')
 
 
 def get_buildversion():
@@ -188,7 +184,14 @@ def cleanup(pathname):
 def mount_dmg(dmg):
     """Attaches dmg"""
     dmg_path = os.path.join(dmg)
-    cmd = ["hdiutil", "attach", "-nobrowse", "-noverify", "-noautoopen", dmg_path]
+    cmd = [
+        "/usr/bin/hdiutil",
+        "attach",
+        "-nobrowse",
+        "-noverify",
+        "-noautoopen",
+        dmg_path,
+    ]
     logging.info("Attaching %s", dmg_path)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
@@ -198,7 +201,7 @@ def mount_dmg(dmg):
 def detach_dmg(dmg_mount):
     """Detaches dmg"""
     logging.info("Detaching %s", dmg_mount)
-    cmd = ["hdiutil", "detach", "-force", dmg_mount]
+    cmd = ["/usr/bin/hdiutil", "detach", "-force", dmg_mount]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = proc.communicate()
     if err:
@@ -439,7 +442,7 @@ def main():
     args = parser.parse_args()
 
     loginwindow = True
-    console_user = SCDynamicStoreCopyConsoleUser(None, None, None)[0]
+    console_user = pwd.getpwuid(os.getuid())[0]
     network_wait = True
     network_timeout = 180
     ignored_users = []
