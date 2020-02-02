@@ -28,6 +28,7 @@ import datetime
 import logging
 import os
 import platform
+import plistlib
 import pwd
 import shutil
 import subprocess
@@ -37,11 +38,6 @@ import warnings
 from distutils.version import StrictVersion as version
 from platform import mac_ver
 from stat import S_IWOTH, S_IXOTH
-
-if sys.version_info > (3, 0):
-    import plistlib as FoundationPlist
-else:
-    import FoundationPlist
 
 __author__ = "Joseph Chilcote (chilcote@gmail.com)"
 __version__ = "2.1.0"
@@ -321,8 +317,8 @@ def process_items(path, delete_items=False, once=False, override={}):
 
     if once:
         try:
-            d = FoundationPlist.readPlist(run_once_plist)
-        except FoundationPlist.FoundationPlistException:
+            d = plistlib.readPlist(run_once_plist)
+        except:
             d = {}
 
     for package in packages:
@@ -371,7 +367,7 @@ def process_items(path, delete_items=False, once=False, override={}):
             cleanup(script)
 
     if d:
-        FoundationPlist.writePlist(d, run_once_plist)
+        plistlib.writePlist(d, run_once_plist)
 
 
 def main():
@@ -451,7 +447,7 @@ def main():
     prefs = {}
 
     if os.path.exists(outset_preferences):
-        prefs = FoundationPlist.readPlist(outset_preferences)
+        prefs = plistlib.readPlist(outset_preferences)
         network_wait = prefs.get("wait_for_network", True)
         network_timeout = prefs.get("network_timeout", 180)
         ignored_users = prefs.get("ignored_users", [])
@@ -499,7 +495,7 @@ def main():
             prefs["network_timeout"] = network_timeout
             prefs["ignored_users"] = ignored_users
             prefs["override_login_once"] = override_login_once
-            FoundationPlist.writePlist(prefs, outset_preferences)
+            plistlib.writePlist(prefs, outset_preferences)
 
         logging.info("Boot processing complete")
 
@@ -582,7 +578,7 @@ def main():
             users_to_ignore = list(set(users_to_add)) if users_to_add else None
             if users_to_ignore:
                 prefs["ignored_users"] = users_to_ignore
-                FoundationPlist.writePlist(prefs, outset_preferences)
+                plistlib.writePlist(prefs, outset_preferences)
 
     if args.remove_ignored_user:
         if os.getuid() != 0:
@@ -594,7 +590,7 @@ def main():
             for user in users_to_remove:
                 if user in prefs["ignored_users"]:
                     prefs["ignored_users"].remove(user)
-            FoundationPlist.writePlist(prefs, outset_preferences)
+            plistlib.writePlist(prefs, outset_preferences)
 
     if args.add_override:
         if os.getuid() != 0:
@@ -615,7 +611,7 @@ def main():
                 prefs["override_login_once"].update(override_items)
             else:
                 prefs["override_login_once"] = override_items
-            FoundationPlist.writePlist(prefs, outset_preferences)
+            plistlib.writePlist(prefs, outset_preferences)
 
     if args.remove_override:
         if os.getuid() != 0:
@@ -628,7 +624,7 @@ def main():
                 script = os.path.join(login_once_dir, script)
                 if script in prefs["override_login_once"]:
                     del prefs["override_login_once"][script]
-            FoundationPlist.writePlist(prefs, outset_preferences)
+            plistlib.writePlist(prefs, outset_preferences)
 
     if args.version:
         print(__version__)

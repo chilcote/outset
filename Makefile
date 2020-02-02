@@ -12,7 +12,6 @@ help:
 ##  clean - Clean up temporary working directories
 clean:
 	rm -f ./outset*.{dmg,pkg}
-	rm -f ./pkgroot/usr/local/outset/FoundationPlist/*.pyc
 
 ##  pkg - Create a package using pkgbuild
 pkg: clean
