@@ -1,5 +1,5 @@
 PKGTITLE="outset"
-PKGVERSION="2.0.6"
+PKGVERSION="3.0.0"
 PKGID=com.github.outset
 PROJECT="outset"
 
@@ -12,7 +12,6 @@ help:
 ##  clean - Clean up temporary working directories
 clean:
 	rm -f ./outset*.{dmg,pkg}
-	rm -f ./pkgroot/usr/local/outset/FoundationPlist/*.pyc
 
 ##  pkg - Create a package using pkgbuild
 pkg: clean
