@@ -61,7 +61,7 @@ cleanup_trigger = "/private/tmp/.com.github.outset.cleanup.launchd"
 
 if os.geteuid() == 0:
     log_file = "/var/log/outset.log"
-    console_uid = os.getuid()
+    console_uid = os.stat('/dev/console').st_uid
     run_once_plist = os.path.join(
         "/usr/local/outset/share",
         "com.github.outset.once." + str(console_uid) + ".plist",
