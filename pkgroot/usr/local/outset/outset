@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/outset/python3
 
 """
 This script automatically processes packages, profiles, and/or scripts at
@@ -40,7 +40,7 @@ from platform import mac_ver
 from stat import S_IWOTH, S_IXOTH
 
 __author__ = "Joseph Chilcote (chilcote@gmail.com)"
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
