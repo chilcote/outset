@@ -20,6 +20,7 @@ set -x
 OUTSET_PYTHON=/usr/local/outset/python3
 ORG_PYTHON=/usr/local/bin/python3
 MACADMINS_PYTHON=/usr/local/bin/managed_python3
+MUNKI_MUNKI_PYTHON=/usr/local/munki/munki-python
 MUNKI_PYTHON=/usr/local/munki/python
 SYSTEM_PYTHON=/usr/bin/python3
 
@@ -30,6 +31,8 @@ if [[ -L "${ORG_PYTHON}" ]]; then
     /bin/ln -s "${ORG_PYTHON}" "${OUTSET_PYTHON}"
 elif [[ -L "${MACADMINS_PYTHON}" ]]; then
     /bin/ln -s "${MACADMINS_PYTHON}" "${OUTSET_PYTHON}"
+elif [[ -L "${MUNKI_MUNKI_PYTHON}" ]]; then
+    /bin/ln -s "${MUNKI_MUNKI_PYTHON}" "${OUTSET_PYTHON}"
 elif [[ -L "${MUNKI_PYTHON}" ]]; then
     /bin/ln -s "${MUNKI_PYTHON}" "${OUTSET_PYTHON}"
 else
