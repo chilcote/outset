@@ -3,17 +3,23 @@ Outset
 
 Outset is a script which automatically processes packages, profiles, and scripts during the boot sequence, user logins, or on demand.
 
-> Note: Version 3.0 requires python3. If you wish to continue using Outset with Apple's system python2, you should use the Outset 2.0.6 release. However, at some point in the not-too-distant future, Apple is going to remove python completely from macOS, and you'll need to roll your own python3 to be able to use Outset.
-
-Options for installing python3:
-1. Install the pkg downloaded directly from [python.org](https://www.python.org/downloads).
-2. Install Apple's CL Tools (either by downloading the pkg from Apple's [developer site](https://developer.apple.com/download/more), or by invoking the shim at `/usr/bin/python3`).
-3. Build your own copy of python (E.g. Greg Neagle's [relocatable python](https://github.com/gregneagle/relocatable-python) tools). You'll need to ensure that this custom python is the default python in your `$PATH`.
-
 Requirements
 ------------
++ macOS 10.15+
 + python 3.7+
-+ It's only been tested on 10.15.x and above
+
+If you need to support 10.14 or lower, stick with the 2.x version.
+
+python3 installed from one of these sources:
+- [python.org](https://www.python.org/downloads/)
+- [MacAdmins](https://github.com/macadmins/python_
+- [Munki](https://github.com/munki/munki)
+
+If none of these are on disk, then fall back to Apple's system python3, which can be installed via the Command Line Tools.
+
+Outset no longer supports python 2, which was [sunsetted on Jan 1, 2020](https://www.python.org/doc/sunset-python-2/). If you choose to continue to use python 2, you'll want to create the symlink via other means, with something like:
+
+`/bin/ln -s /usr/bin/python /usr/local/outset/python3`
 
 Usage
 -----
@@ -49,10 +55,12 @@ Credits
 -------
 This script was an excuse for me to try to learn python. I learn best when I can pull apart existing scripts. As such, this script is heavily based on the great work by [Nate Walck](https://github.com/natewalck/Scripts/blob/master/scriptRunner.py), [Allister Banks](https://gist.github.com/arubdesu/8271ba29ac5aff8f982c), [Rich Trouton](https://github.com/rtrouton/First-Boot-Package-Install), [Graham Gilbert](https://github.com/grahamgilbert/first-boot-pkg/blob/master/Resources/first-boot), and [Greg Neagle](https://github.com/munki/munki/blob/master/code/client/managedsoftwareupdate#L87).
 
+Special thanks to @homebysix for working on the python3 compatibility release.
+
 License
 -------
 
-    Copyright 2020 Joseph Chilcote
+    Copyright Joseph Chilcote
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
