@@ -10,9 +10,9 @@ Requirements
 
 If you need to support 10.14 or lower, stick with the 2.x version.
 
-python3 installed from one of these sources:
+python3 can be installed from one of these sources:
 - [python.org](https://www.python.org/downloads/)
-- [MacAdmins](https://github.com/macadmins/python_
+- [MacAdmins](https://github.com/macadmins/python)
 - [Munki](https://github.com/munki/munki)
 
 If none of these are on disk, then fall back to Apple's system python3, which can be installed via the Command Line Tools.
