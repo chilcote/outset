@@ -617,7 +617,7 @@ def main():
             else:
                 prefs["override_login_once"] = override_items
             with open(outset_preferences, 'wb') as fp:
-                prefs = plistlib.dump(fp)
+                plistlib.dump(prefs, fp)
 
     if args.remove_override:
         if os.getuid() != 0:
@@ -631,7 +631,7 @@ def main():
                 if script in prefs["override_login_once"]:
                     del prefs["override_login_once"][script]
             with open(outset_preferences, 'wb') as fp:
-                prefs = plistlib.dump(fp)
+                plistlib.dump(prefs, fp)
 
     if args.version:
         print(__version__)
