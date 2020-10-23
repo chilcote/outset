@@ -1,12 +1,12 @@
 PKGTITLE="outset"
-PKGVERSION="3.0.1"
+PKGVERSION="3.0.2"
 PKGID=com.github.outset
 PROJECT="outset"
 
 #################################################
 
 ##Help - Show this help menu
-help: 
+help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 ##  clean - Clean up temporary working directories
