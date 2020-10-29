@@ -86,13 +86,13 @@ logging.getLogger().addHandler(stdout_logging)
 
 
 def network_up():
-    """Returns True if network is up"""
+    """Returns True if network interfaces are none of localhost or 0.0.0.0"""
     cmd = ["/sbin/ifconfig", "-a", "inet"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    for line in str(out).splitlines():
+    out = subprocess.check_output(cmd).decode("utf-8")
+    for line in out.splitlines():
         if "inet" in line:
-            if not line.split()[1] in ["127.0.0.1", "0.0.0.0"]:
+            address = line.split()[1]
+            if not address in ["127.0.0.1", "0.0.0.0"]:
                 return True
     return False
 
@@ -143,7 +143,7 @@ def get_serialnumber():
     """Returns the serial number of the Mac"""
     out = subprocess.check_output(
         ["/usr/sbin/ioreg", "-c", "IOPlatformExpertDevice"]
-    ).decode()
+    ).decode('utf-8')
     serial_line = [x for x in out.splitlines() if "IOPlatformSerialNumber" in x][0]
     return serial_line.split()[-1].strip('"')
 
@@ -189,8 +189,7 @@ def mount_dmg(dmg):
         dmg_path,
     ]
     logging.info("Attaching %s", dmg_path)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    out = subprocess.check_output(cmd).decode('utf-8')
     return out.split("\n")[-2].split("\t")[-1]
 
 
