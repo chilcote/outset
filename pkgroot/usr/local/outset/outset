@@ -115,8 +115,7 @@ def disable_loginwindow():
         "unload",
         "/System/Library/LaunchDaemons/com.apple.loginwindow.plist",
     ]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    subprocess.call(cmd)
 
 
 def enable_loginwindow():
@@ -127,16 +126,13 @@ def enable_loginwindow():
         "load",
         "/System/Library/LaunchDaemons/com.apple.loginwindow.plist",
     ]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    subprocess.call(cmd)
 
 
 def get_hardwaremodel():
     """Returns the hardware model of the Mac"""
     cmd = ["/usr/sbin/sysctl", "-n", "hw.model"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    return out.strip()
+    return subprocess.check_output(cmd).decode('utf-8').strip()
 
 
 def get_serialnumber():
@@ -151,13 +147,11 @@ def get_serialnumber():
 def get_buildversion():
     """Returns the os build version of the Mac"""
     cmd = ["/usr/sbin/sysctl", "-n", "kern.osversion"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
-    return out.strip()
+    return subprocess.check_output(cmd).decode('utf-8').strip()
 
 
 def get_osversion():
-    """Returns the os x version of this Mac"""
+    """Returns macOS version, may be inconsistent depending on interpreter used"""
     return platform.mac_ver()[0]
 
 
@@ -198,9 +192,9 @@ def detach_dmg(dmg_mount):
     logging.info("Detaching %s", dmg_mount)
     cmd = ["/usr/bin/hdiutil", "detach", "-force", dmg_mount]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    (_, err) = proc.communicate()
     if err:
-        logging.error("Unable to detach %s: %s", dmg_mount, err)
+        logging.error("Unable to detach %s: %s", dmg_mount, err.decode('utf-8'))
 
 
 def check_perms(pathname):
@@ -228,9 +222,9 @@ def install_package(pkg):
     logging.info("Installing %s", pkg_to_install)
     cmd = ["/usr/sbin/installer", "-pkg", pkg_to_install, "-target", "/"]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    (_, err) = proc.communicate()
     if err:
-        logging.info("Failure installing %s: %s", pkg_to_install, err)
+        logging.info("Failure installing %s: %s", pkg_to_install, err.decode('utf-8'))
         return False
     if dmg_mount:
         time.sleep(5)
@@ -249,35 +243,35 @@ def install_profile(pathname):
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logging.info("Installing profile %s", pathname)
-        (out, err) = proc.communicate()
+        (_, err) = proc.communicate()
         if err:
-            logging.error("Failure processing %s: %s", pathname, err)
+            logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
             return False
     except OSError as err:
-        logging.error("Failure processing %s: %s", pathname, err)
+        logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
         return False
     return True
 
 
 def run_script(pathname):
     """Runs script located at given pathname"""
+    logging.info("Processing %s", pathname)
+    # first attempt, mostly via https://stackoverflow.com/a/4760517
     try:
-        proc = subprocess.Popen(
+        result = subprocess.run(
             pathname, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        logging.info("Processing %s", pathname)
-        (out, err) = proc.communicate()
-        if err and proc.returncode == 0:
+        if result.stderr and result.returncode == 0:
             logging.info(
                 "Output from %s on stderr but it still ran successfully: %s",
                 pathname,
-                err,
+                result.stderr.decode('utf-8'),
             )
-        elif proc.returncode > 0:
-            logging.error("Failure processing %s: %s", pathname, err)
+        elif result.returncode > 0:
+            logging.error("Failure processing %s: %s", pathname, result.stderr.decode('utf-8'))
             return False
     except OSError as err:
-        logging.error("Failure processing %s: %s", pathname, err)
+        logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
         return False
     return True
 
