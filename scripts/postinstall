@@ -11,10 +11,11 @@ set -x
 # If none of these are on disk, then fall back to Apple's system python,
 # which can be installed via the Command Line Tools.
 
-# "What about python 2, which Apple still ships," you ask?
+# "What about python 2, which Apple shipped until macOS 12.3," you ask?
 #  Outset does not support python 2, which was sunsetted on Jan 1, 2020.
 #  See https://www.python.org/doc/sunset-python-2/.
-#  If you choose to continue to use python 2, you'll want to create the symlink via other means,
+#  If you choose to continue to use python 2, and you're running an OS older than macOS 12.3, 
+#  you'll want to create the symlink via other means,
 #  with something like: /bin/ln -s /usr/bin/python /usr/local/outset/python3
 
 OUTSET_PYTHON=/usr/local/outset/python3
