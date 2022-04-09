@@ -1,7 +1,0 @@
-#!/bin/bash
-
-[[ $3 != "/" ]] && exit 0
-
-/usr/bin/touch /private/tmp/.com.github.outset.ondemand.launchd
-
-exit 0
