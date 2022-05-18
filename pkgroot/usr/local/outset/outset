@@ -248,7 +248,7 @@ def install_profile(pathname):
             logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
             return False
     except OSError as err:
-        logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
+        logging.error("Failure processing %s: %s", pathname, err.strerror)
         return False
     return True
 
@@ -271,7 +271,7 @@ def run_script(pathname):
             logging.error("Failure processing %s: %s", pathname, result.stderr.decode('utf-8'))
             return False
     except OSError as err:
-        logging.error("Failure processing %s: %s", pathname, err.decode('utf-8'))
+        logging.error("Failure processing %s: %s", pathname, err.strerror)
         return False
     return True
 
