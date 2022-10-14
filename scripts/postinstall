@@ -47,7 +47,7 @@ fi
 # Load the LaunchAgents
 
 user=$(/bin/echo "show State:/Users/ConsoleUser" | /usr/sbin/scutil | /usr/bin/awk '/Name :/&&!/loginwindow/{print $3}')
-console_user_uid=$(/usr/bin/id -u "$user")
+console_user_uid=$(stat -f%u /dev/console)
 [[ -z "$user" ]] && exit 0
 /bin/launchctl asuser "$console_user_uid" /bin/launchctl load /Library/LaunchAgents/com.github.outset.login.plist
 /bin/launchctl asuser "$console_user_uid" /bin/launchctl load /Library/LaunchAgents/com.github.outset.on-demand.plist
