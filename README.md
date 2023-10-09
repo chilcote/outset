@@ -1,6 +1,8 @@
 Outset
 ======
 
+> NOTE: This instance of Outset is decommissioned and you should start using the Swift-based [Outset 4.0 available on the macadmins repo](https://github.com/macadmins/outset).
+
 Outset is a script which automatically processes packages, profiles, and scripts during the boot sequence, user logins, or on demand.
 
 Requirements
