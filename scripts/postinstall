@@ -5,16 +5,17 @@ set -x
 [[ $3 != "/" ]] && exit 0
 
 # Let's play python roulette, and choose from some popular options, in this order:
-#  1. python.org https://www.python.org/downloads/
-#  2. MacAdmins https://github.com/macadmins/python
-#  3. Munki https://github.com/munki/munki
+#  1. MacAdmins https://github.com/macadmins/python
+#  2. Munki https://github.com/munki/munki
+#  3. python.org https://www.python.org/downloads/
 # If none of these are on disk, then fall back to Apple's system python,
 # which can be installed via the Command Line Tools.
 
-# "What about python 2, which Apple still ships," you ask?
+# "What about python 2, which Apple shipped until macOS 12.3," you ask?
 #  Outset does not support python 2, which was sunsetted on Jan 1, 2020.
 #  See https://www.python.org/doc/sunset-python-2/.
-#  If you choose to continue to use python 2, you'll want to create the symlink via other means,
+#  If you choose to continue to use python 2, and you're running an OS older than macOS 12.3, 
+#  you'll want to create the symlink via other means,
 #  with something like: /bin/ln -s /usr/bin/python /usr/local/outset/python3
 
 OUTSET_PYTHON=/usr/local/outset/python3
@@ -27,14 +28,14 @@ SYSTEM_PYTHON=/usr/bin/python3
 # Delete existing symlink
 [[ -L "${OUTSET_PYTHON}" ]] && /bin/rm "${OUTSET_PYTHON}"
 
-if [[ -L "${ORG_PYTHON}" ]]; then
-    /bin/ln -s "${ORG_PYTHON}" "${OUTSET_PYTHON}"
-elif [[ -L "${MACADMINS_PYTHON}" ]]; then
+if [[ -L "${MACADMINS_PYTHON}" ]]; then
     /bin/ln -s "${MACADMINS_PYTHON}" "${OUTSET_PYTHON}"
 elif [[ -L "${MUNKI_MUNKI_PYTHON}" ]]; then
     /bin/ln -s "${MUNKI_MUNKI_PYTHON}" "${OUTSET_PYTHON}"
 elif [[ -L "${MUNKI_PYTHON}" ]]; then
     /bin/ln -s "${MUNKI_PYTHON}" "${OUTSET_PYTHON}"
+elif [[ -L "${ORG_PYTHON}" ]]; then
+    /bin/ln -s "${ORG_PYTHON}" "${OUTSET_PYTHON}"
 else
     /bin/ln -s "${SYSTEM_PYTHON}" "${OUTSET_PYTHON}"
 fi
